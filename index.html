@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photography History - Study Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --card-hover: #222;
+            --accent: #e8a87c;
+            --accent2: #d4a574;
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --border: #333;
+            --success: #4caf50;
+            --danger: #e57373;
+            --theory-accent: #f0a830;
+            --theory-accent2: #d4942a;
+            --theory-glow: rgba(240,168,48,0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* NAV */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15,15,15,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        nav h1 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+        }
+        .nav-tabs button {
+            padding: 8px 20px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .nav-tabs button.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        .nav-tabs button.active.theory-tab-active {
+            background: var(--theory-accent);
+            border-color: var(--theory-accent);
+        }
+        .nav-tabs button:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+        .search-box {
+            margin-left: auto;
+            position: relative;
+        }
+        .search-box input {
+            padding: 8px 16px 8px 36px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            width: 260px;
+            outline: none;
+        }
+        .search-box input:focus { border-color: var(--accent); }
+        .search-box::before {
+            content: "\1F50D";
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.85rem;
+        }
+
+        /* FILTERS */
+        .filters {
+            padding: 12px 24px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+        }
+        .filter-btn {
+            padding: 5px 14px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .filter-btn.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+        .filter-btn:hover:not(.active) {
+            border-color: var(--accent2);
+            color: var(--text);
+        }
+        .filter-btn.theory-filter.active {
+            background: var(--theory-accent);
+            border-color: var(--theory-accent);
+        }
+
+        /* GALLERY */
+        #gallery {
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+        .card-img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            background: #222;
+            display: block;
+        }
+        .card-img-placeholder {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+        .card-body {
+            padding: 16px;
+        }
+        .card-num {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        .card-author {
+            font-size: 0.9rem;
+            color: var(--accent2);
+            margin-bottom: 6px;
+        }
+        .card-meta {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+        .card-lecture {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 2px 10px;
+            background: rgba(232,168,124,0.15);
+            color: var(--accent);
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+        .modal-overlay.open { display: flex; justify-content: center; align-items: flex-start; }
+        .modal {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.6);
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+        .modal-img {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            background: #111;
+        }
+        .modal-img-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+        .modal-body {
+            padding: 24px;
+        }
+        .modal-body h2 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+        .modal-body .author {
+            font-size: 1.1rem;
+            color: var(--accent2);
+            margin-bottom: 16px;
+        }
+        .modal-detail {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .modal-detail strong {
+            color: var(--accent);
+        }
+        .modal-nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+        }
+        .modal-nav button {
+            padding: 8px 20px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .modal-nav button:hover {
+            border-color: var(--accent);
+            background: rgba(232,168,124,0.1);
+        }
+
+        /* FLASHCARD MODE */
+        #flashcard-view {
+            display: none;
+            padding: 24px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .fc-progress {
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+        .fc-progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .fc-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        .flashcard {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+            perspective: 1000px;
+            position: relative;
+        }
+        .flashcard:hover {
+            border-color: var(--accent);
+        }
+        .fc-img {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .fc-img-placeholder {
+            width: 280px;
+            height: 200px;
+            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            font-style: italic;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            padding: 16px;
+        }
+        .fc-question {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        .fc-hint {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        .fc-answer {
+            display: none;
+            text-align: left;
+            width: 100%;
+        }
+        .fc-answer h3 {
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+        .fc-answer p {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .fc-answer .label {
+            color: var(--accent2);
+            font-weight: 600;
+        }
+        .fc-tap {
+            margin-top: 16px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        .fc-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .fc-btn {
+            padding: 10px 28px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .fc-btn:hover {
+            border-color: var(--accent);
+        }
+        .fc-btn.knew {
+            border-color: var(--success);
+            color: var(--success);
+        }
+        .fc-btn.knew:hover {
+            background: rgba(76,175,80,0.15);
+        }
+        .fc-btn.didnt {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        .fc-btn.didnt:hover {
+            background: rgba(229,115,115,0.15);
+        }
+
+        /* FLASHCARD SETTINGS */
+        .fc-settings {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .fc-settings h3 {
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+        .fc-setting-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .fc-setting-row label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            min-width: 120px;
+        }
+        .fc-setting-row select, .fc-setting-row input[type="number"] {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .fc-start-btn {
+            margin-top: 8px;
+            padding: 10px 32px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .fc-start-btn:hover { opacity: 0.9; }
+
+        /* SCORE */
+        .fc-score {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+        }
+        .fc-score h2 {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+        .fc-score .big-num {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .fc-score p {
+            color: var(--text-dim);
+            margin: 8px 0;
+        }
+
+        /* CHECKLIST MODE */
+        #checklist-view {
+            display: none;
+            padding: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .checklist-lecture {
+            margin-bottom: 24px;
+        }
+        .checklist-lecture h3 {
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-size: 1rem;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(51,51,51,0.4);
+        }
+        .checklist-item input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--accent);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .checklist-item.checked .cl-text {
+            text-decoration: line-through;
+            color: var(--text-dim);
+        }
+        .cl-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .cl-text strong { color: var(--accent2); }
+        .checklist-stats {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .checklist-stats span {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+        .checklist-stats strong {
+            color: var(--accent);
+        }
+
+        /* THEORY VIEW */
+        #theory-view {
+            display: none;
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .theory-sub-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .theory-sub-tabs button {
+            padding: 10px 24px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .theory-sub-tabs button.active {
+            background: var(--theory-accent);
+            color: #000;
+            border-color: var(--theory-accent);
+            font-weight: 600;
+        }
+        .theory-sub-tabs button:hover:not(.active) {
+            border-color: var(--theory-accent);
+            color: var(--text);
+        }
+        .theory-search {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .theory-search input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .theory-search input:focus { border-color: var(--theory-accent); }
+        .theory-search::before {
+            content: "\1F50D";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+        }
+        #theory-filters {
+            padding: 0 0 16px 0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* CONCEPT CARDS GRID */
+        #concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        .concept-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .concept-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--theory-accent), var(--theory-accent2));
+        }
+        .concept-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--theory-accent);
+        }
+        .concept-card .thinker {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--theory-accent);
+            margin-bottom: 4px;
+        }
+        .concept-card .thinker-years {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+        .concept-card .concept-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .concept-card .category-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            background: var(--theory-glow);
+            color: var(--theory-accent);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-bottom: 10px;
+        }
+        .concept-card .teaser {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* THEORY MODAL */
+        .theory-modal-body h2 {
+            color: var(--theory-accent) !important;
+        }
+        .theory-modal-body .modal-detail strong {
+            color: var(--theory-accent);
+        }
+        .theory-modal-body .key-term {
+            background: var(--theory-glow);
+            padding: 1px 6px;
+            border-radius: 4px;
+            color: var(--theory-accent);
+            font-weight: 600;
+        }
+
+        /* THEORY FLASHCARD SETTINGS */
+        .theory-fc-settings h3 {
+            color: var(--theory-accent);
+        }
+        .theory-fc-settings .fc-start-btn {
+            background: var(--theory-accent);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            nav { padding: 10px 12px; }
+            nav h1 { font-size: 0.95rem; width: 100%; }
+            .search-box { margin-left: 0; width: 100%; }
+            .search-box input { width: 100%; }
+            #gallery { padding: 12px; grid-template-columns: 1fr; }
+            .modal-body { padding: 16px; }
+            #flashcard-view, #checklist-view, #theory-view { padding: 12px; }
+            #concept-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Keyboard shortcut hints */
+        .shortcut-hint {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            z-index: 50;
+        }
+        .shortcut-hint kbd {
+            background: var(--border);
+            padding: 1px 6px;
+            border-radius: 3px;
+            color: var(--text);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>Photography History</h1>
+        <div class="nav-tabs">
+            <button class="active" onclick="switchView('gallery')">Gallery</button>
+            <button onclick="switchView('flashcard')">Flashcards</button>
+            <button onclick="switchView('checklist')">Checklist</button>
+            <button onclick="switchView('theory')">Theory</button>
+        </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search by author, title, year..." oninput="filterGallery()">
+        </div>
+    </nav>
+    <div class="filters" id="filters"></div>
+
+    <div id="gallery"></div>
+
+    <div id="flashcard-view">
+        <div class="fc-settings" id="fc-settings">
+            <h3>Flashcard Settings</h3>
+            <div class="fc-setting-row">
+                <label>Lesson:</label>
+                <select id="fc-lecture">
+                    <option value="all">All Lessons</option>
+                </select>
+            </div>
+            <div class="fc-setting-row">
+                <label>Quiz type:</label>
+                <select id="fc-type">
+                    <option value="image-to-info">Image &rarr; Guess Info</option>
+                    <option value="title-to-author">Title &rarr; Guess Author</option>
+                    <option value="author-to-works">Author &rarr; Guess Works</option>
+                    <option value="random">Random Mix</option>
+                </select>
+            </div>
+            <div class="fc-setting-row">
+                <label>Cards:</label>
+                <input type="number" id="fc-count" value="20" min="1" max="103">
+            </div>
+            <div class="fc-setting-row">
+                <label></label>
+                <label style="min-width:auto"><input type="checkbox" id="fc-shuffle" checked style="accent-color:var(--accent)"> Shuffle order</label>
+            </div>
+            <div class="fc-setting-row">
+                <label></label>
+                <button class="fc-start-btn" onclick="startFlashcards()">Start Studying</button>
+            </div>
+        </div>
+        <div id="fc-session" style="display:none">
+            <div class="fc-progress">
+                <span id="fc-progress-text"></span>
+                <div class="fc-progress-bar"><div class="fc-progress-fill" id="fc-progress-fill"></div></div>
+            </div>
+            <div class="flashcard" id="flashcard" onclick="flipCard()"></div>
+            <div class="fc-controls" id="fc-controls">
+                <button class="fc-btn didnt" onclick="markCard(false)">Didn't Know</button>
+                <button class="fc-btn" onclick="flipCard()">Flip Card</button>
+                <button class="fc-btn knew" onclick="markCard(true)">Knew It</button>
+            </div>
+        </div>
+        <div class="fc-score" id="fc-score"></div>
+    </div>
+
+    <div id="checklist-view"></div>
+
+    <!-- THEORY VIEW -->
+    <div id="theory-view">
+        <div class="theory-sub-tabs">
+            <button class="active" onclick="switchTheoryTab('concepts')">Concept Cards</button>
+            <button onclick="switchTheoryTab('theory-fc')">Theory Flashcards</button>
+        </div>
+
+        <div id="theory-concepts-panel">
+            <div class="theory-search">
+                <input type="text" id="theorySearchInput" placeholder="Search thinkers, concepts, categories..." oninput="filterConcepts()">
+            </div>
+            <div id="theory-filters"></div>
+            <div id="concept-grid"></div>
+        </div>
+
+        <div id="theory-fc-panel" style="display:none">
+            <div class="fc-settings theory-fc-settings" id="tfc-settings">
+                <h3>Theory Flashcard Settings</h3>
+                <div class="fc-setting-row">
+                    <label>Category:</label>
+                    <select id="tfc-category">
+                        <option value="all">All Categories</option>
+                    </select>
+                </div>
+                <div class="fc-setting-row">
+                    <label>Cards:</label>
+                    <input type="number" id="tfc-count" value="10" min="1" max="99">
+                </div>
+                <div class="fc-setting-row">
+                    <label></label>
+                    <label style="min-width:auto"><input type="checkbox" id="tfc-shuffle" checked style="accent-color:var(--theory-accent)"> Shuffle order</label>
+                </div>
+                <div class="fc-setting-row">
+                    <label></label>
+                    <button class="fc-start-btn" onclick="startTheoryFlashcards()">Start Studying</button>
+                </div>
+            </div>
+            <div id="tfc-session" style="display:none">
+                <div class="fc-progress">
+                    <span id="tfc-progress-text"></span>
+                    <div class="fc-progress-bar"><div class="fc-progress-fill" id="tfc-progress-fill" style="background:var(--theory-accent)"></div></div>
+                </div>
+                <div class="flashcard" id="theory-flashcard" onclick="flipTheoryCard()" style="border-color:var(--border)"></div>
+                <div class="fc-controls">
+                    <button class="fc-btn didnt" onclick="markTheoryCard(false)">Didn't Know</button>
+                    <button class="fc-btn" onclick="flipTheoryCard()">Flip Card</button>
+                    <button class="fc-btn knew" onclick="markTheoryCard(true)">Knew It</button>
+                </div>
+            </div>
+            <div class="fc-score" id="tfc-score"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div id="modal-content"></div>
+            <div class="modal-nav" id="modal-nav">
+                <button onclick="navigateModal(-1)">&larr; Previous</button>
+                <button onclick="navigateModal(1)">Next &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="shortcut-hint" id="shortcut-hint">
+        <kbd>&larr;</kbd> <kbd>&rarr;</kbd> navigate &nbsp; <kbd>Space</kbd> flip &nbsp; <kbd>Esc</kbd> close
+    </div>
+
+<script>
+const works = [
+  {n:1, lez:1, author:"Eric Kessels", life:"1966-", title:"24hrs in Photos", date:"2021", technique:"Installation of 350,000 photos uploaded in 24h on Flickr, Facebook, Instagram", dimensions:"", location:"Digital", museum:"", inv:"", img:"img/1.jpg", notes:"Reflects on the overwhelming flood of digital images produced daily."},
+  {n:2, lez:1, author:"Henri Le Secq", life:"1818-1882", title:"Fantaisies", date:"c. 1855", technique:"Cyanotype from paper negative", dimensions:"", location:"Paris", museum:"Biblioth\u00e8que des Arts d\u00e9coratives", inv:"", img:"img/2.jpg", notes:"Early artistic use of cyanotype process for creative expression."},
+  {n:3, lez:1, author:"Paolo Gioli", life:"", title:"Pugno contro me stesso / La finestra in pugno", date:"1989", technique:"Gelatin silver prints, 18x13 cm, from negatives made with a fist", dimensions:"18x13 cm", location:"", museum:"", inv:"", img:"img/3.jpg", notes:"Experimental photography using the fist as a pinhole camera."},
+  {n:4, lez:2, author:"Athanasius Kircher", life:"1602-1680", title:"Ars magna lucis et umbrae", date:"1671", technique:"Magic lantern illustration, pp. 768-69", dimensions:"", location:"Rome", museum:"Published by Grignani", inv:"", img:"img/4.jpg", notes:"One of the first published descriptions of the magic lantern."},
+  {n:5, lez:2, author:"Robert Hooke", life:"1635-1703", title:"Picture Box", date:"1694 (pub. 1726)", technique:"Instrument description in William Derham's book", dimensions:"", location:"London", museum:"Royal Society", inv:"", img:"img/5.jpg", notes:"'An Instrument of Use to take the Draught, or Picture of any Thing.' Presented to the Royal Society Dec. 19, 1694."},
+  {n:6, lez:2, author:"Reverend Calvert Jones (attr.)", life:"", title:"Self-portrait (in mirror) drawing with a Wollaston camera lucida", date:"c. 1830", technique:"Drawing, 22.8 x 8.6 cm", dimensions:"22.8 x 8.6 cm", location:"Wales", museum:"The National Library of Wales", inv:"", img:"img/6.jpg", notes:"Shows an artist using the camera lucida drawing aid."},
+  {n:7, lez:3, author:"Albrecht D\u00fcrer", life:"1471-1528", title:"Draughtsman Making a Perspective Drawing of a Reclining Woman", date:"1600", technique:"Woodcut, 7.7 x 21.4 cm", dimensions:"7.7 x 21.4 cm", location:"New York", museum:"Metropolitan Museum", inv:"17.37.314", img:"img/7.jpg", notes:"Illustrates Renaissance perspective-drawing techniques using a grid device."},
+  {n:8, lez:3, author:"Nic\u00e9phore Ni\u00e9pce", life:"1765-1833", title:"Heliography on tin plate / Engraving by Fran\u00e7ois Lemaitre", date:"1826-1827", technique:"Heliography on tin plate; paper print from heliography", dimensions:"", location:"", museum:"", inv:"", img:"img/8.jpg", notes:"First successful permanent photographic process."},
+  {n:9, lez:3, author:"Nic\u00e9phore Ni\u00e9pce", life:"1765-1833", title:"Point de vue du Gras", date:"1827", technique:"Heliography on pewter plate, 16.7x20.3 cm", dimensions:"16.7x20.3 cm", location:"Austin, Texas", museum:"Harry Ransom Center, University of Texas", inv:"Gernsheim Collection", img:"img/9.jpg", notes:"The oldest surviving photograph. View from a window at Saint-Loup-de-Varennes."},
+  {n:10, lez:3, author:"Louis-Jacques-Mand\u00e9 Daguerre", life:"1787-1851", title:"Nature morta con basso rilievo di J. Goujon (Still life)", date:"1837", technique:"Daguerreotype, 16.5 x 21.5 cm", dimensions:"16.5 x 21.5 cm", location:"Paris", museum:"Soci\u00e9t\u00e9 fran\u00e7aise de photographie", inv:"", img:"img/10.jpg", notes:"One of the earliest daguerreotypes, a still life arrangement."},
+  {n:11, lez:4, author:"Louis-Jacques-Mand\u00e9 Daguerre", life:"1787-1851", title:"Boulevard du Temple", date:"1838", technique:"Daguerreotype (full plate), 12.9x16.3 cm", dimensions:"12.9x16.3 cm", location:"Munich", museum:"Bayerisches Nationalmuseum", inv:"", img:"img/11.jpg", notes:"Famous for being one of the first photographs to include a human figure (a man getting his shoes shined). Long exposure erased moving people."},
+  {n:12, lez:4, author:"Louis-Jacques-Mand\u00e9 Daguerre", life:"1787-1851", title:"Triptych on original mount", date:"1838-1839", technique:"Daguerreotype", dimensions:"", location:"Munich", museum:"Bayerisches Nationalmuseum", inv:"", img:"img/12.jpg", notes:"Three daguerreotypes on their original mounting."},
+  {n:13, lez:4, author:"William Henry Fox Talbot", life:"1800-1877", title:"Sketch of Lake Como", date:"5 October 1833", technique:"Drawing made with camera lucida", dimensions:"", location:"Bradford", museum:"National Science and Media Museum", inv:"", img:"img/13.jpg", notes:"Talbot's frustration with drawing using the camera lucida inspired him to invent photography."},
+  {n:14, lez:4, author:"William Henry Fox Talbot", life:"1800-1877", title:"Leaf of a Fig / Leaf of Hawthorn (Crataegus)", date:"c. 1839", technique:"Photogenic drawing, salted paper, 21.8 x 18.5 cm", dimensions:"21.8 x 18.5 cm", location:"New York", museum:"Metropolitan Museum", inv:"36.37 (10)", img:"img/14.jpg", notes:"Photogenic drawings - placing objects directly on light-sensitive paper."},
+  {n:15, lez:4, author:"Anna Atkins & Anne Dixon", life:"1799-1871 / 1799-1877", title:"Ceterach officinarum (from Cyanotypes of British and Foreign Ferns)", date:"1853", technique:"Cyanotype, 25.4 x 19.4 cm", dimensions:"25.4 x 19.4 cm", location:"Los Angeles", museum:"J. Paul Getty Museum", inv:"", img:"img/15.jpg", notes:"Anna Atkins is considered the first woman photographer and first to publish a photographically illustrated book."},
+  {n:16, lez:5, author:"William Henry Fox Talbot", life:"1800-1877", title:"Latticed Window (with the Camera Obscura)", date:"1835", technique:"Paper negative, 3.6 x 2.8 cm on secondary support 6.9 x 14.9 cm", dimensions:"3.6 x 2.8 cm", location:"Bradford", museum:"National Science and Media Museum", inv:"Talbot cat. 2242", img:"img/16.jpg", notes:"The oldest surviving camera negative. Taken at Lacock Abbey."},
+  {n:17, lez:5, author:"William Henry Fox Talbot", life:"1800-1877", title:"Scene in a Library", date:"before 22 March 1844", technique:"Salted paper print from calotype negative, 13.3 x 18 cm", dimensions:"13.3 x 18 cm", location:"New York", museum:"Metropolitan Museum", inv:"2005.100.172", img:"img/17.jpg", notes:"Plate 8 from 'The Pencil of Nature', the first commercially published book illustrated with photographs."},
+  {n:18, lez:5, author:"William Henry Fox Talbot", life:"1800-1877", title:"Nelson's Column under Construction, Trafalgar Square", date:"April 1844", technique:"Salted paper from calotype negative, 17.1 x 21.2 cm", dimensions:"17.1 x 21.2 cm (image), 18.7 x 22.5 cm (paper)", location:"New York", museum:"Metropolitan Museum", inv:"2009.279", img:"img/18.jpg", notes:"Documents the construction of the famous London landmark."},
+  {n:19, lez:6, author:"Hippolyte Bayard", life:"1801-1887", title:"Self Portrait as a Drowned Man (Le Noy\u00e9)", date:"18 October 1840", technique:"Direct positive print on paper, 18.6x19.2 cm", dimensions:"18.6x19.2 cm", location:"Paris", museum:"Soci\u00e9t\u00e9 fran\u00e7aise de photographie", inv:"", img:"img/19.jpg", notes:"Considered the first photographic self-portrait and earliest example of photography used for political protest. Bayard staged his 'death' to protest lack of recognition for his invention."},
+  {n:20, lez:6, author:"Fr\u00e9d\u00e9ric Goupil-Fesquet", life:"1818-c.1875", title:"Luxor", date:"1842-44", technique:"Aquatint engraving in Excursions daguerriennes", dimensions:"", location:"Paris", museum:"Published by Lerebours", inv:"", img:"img/20.jpg", notes:"From 'Excursions daguerriennes: vues et monuments les plus remarquables du globe' - engravings based on daguerreotypes from around the world."},
+  {n:21, lez:6, author:"Joseph-Philibert Girault de Prangey", life:"1804-1892", title:"148. Rosette. 1842. Rue E[st]", date:"1842", technique:"Daguerreotype (full plate), 24 x 18.9 cm; and lithograph 56.9 x 39.7 cm", dimensions:"24 x 18.9 cm", location:"New York", museum:"Metropolitan Museum", inv:"2017.66.21", img:"img/21.jpg", notes:"Panoramic views on daguerreotype. Part of the series Monuments arabes."},
+  {n:22, lez:7, author:"Maxime Du Camp", life:"1822-1894", title:"Le Kaire. Mosqu\u00e9e et tombeau des Ayoubites", date:"neg. 27 Dec 1849, print 1852", technique:"Salted paper print, 15.2 x 21.4 cm", dimensions:"15.2 x 21.4 cm", location:"Los Angeles", museum:"J. Paul Getty Museum", inv:"84.XO.1303.1.6", img:"img/22.jpg", notes:"From Du Camp's photographic expedition to Egypt with Gustave Flaubert."},
+  {n:23, lez:7, author:"Auguste Salzmann", life:"1824-1872", title:"J\u00e9rusalem, Enceinte du Temple, Triple porte romaine", date:"c. 1854", technique:"Salted paper, 23.4 x 31.9 cm on lithographed card 44.6 x 59.6 cm", dimensions:"23.4 x 31.9 cm", location:"New York", museum:"Metropolitan Museum", inv:"2005.100.373.8", img:"img/23.jpg", notes:"Archaeological photography of Jerusalem used to support scholarly arguments."},
+  {n:24, lez:7, author:"Fratelli Alinari (Giuseppe, Leopoldo, Romualdo)", life:"1836-1890, 1832-1865, 1830-1890", title:"Digital inversion from glass plate negative", date:"1860", technique:"Glass plate negative 21x27 cm (digital inversion)", dimensions:"21x27 cm", location:"Florence", museum:"Archivi Alinari", inv:"APA-F-017007-0000", img:"img/24.jpg", notes:"The Alinari brothers founded one of the world's oldest photography firms, documenting Italian art and architecture."},
+  {n:25, lez:7, author:"David Octavius Hill & Robert Adamson", life:"1802-1870 / 1821-1848", title:"Mr Laing or Laine", date:"1843", technique:"Salted paper from calotype negative, 19.6 x 14.3 cm", dimensions:"19.6 x 14.3 cm", location:"Edinburgh", museum:"National Galleries of Scotland", inv:"PGP HA 558", img:"img/25.jpg", notes:"Hill & Adamson are among the earliest portrait photographers, pioneering the artistic calotype portrait."},
+  {n:26, lez:8, author:"Mestral (attr.)", life:"1812-1884", title:"Chiesa di Saint-Pierre, Moissac. Veduta di una galleria del chiostro", date:"1851", technique:"Salted paper from waxed paper negative, 28.3x38.7 cm", dimensions:"28.3x38.7 cm", location:"Paris", museum:"Mus\u00e9e d'Orsay", inv:"Album Brebisson", img:"img/26.jpg", notes:"Part of the Mission H\u00e9liographique - the first government-sponsored photographic survey of historic architecture."},
+  {n:27, lez:8, author:"\u00c9douard Baldus", life:"1813-1889", title:"Bastioni, Avignone (Ramparts, Avignon)", date:"1851", technique:"Salted paper from gelatin-coated paper negative, 26.3x36.3 cm", dimensions:"26.3x36.3 cm", location:"Paris", museum:"Mus\u00e9e d'Orsay", inv:"", img:"img/27.jpg", notes:"Shows ink retouching on the verso of the negative. Part of the Mission H\u00e9liographique."},
+  {n:28, lez:8, author:"Henri Le Secq", life:"1818-1882", title:"Cath\u00e9drale de Notre-Dame, Reims, Upper part of the apse", date:"1851", technique:"Salted paper from waxed paper negative, 33x22.9 cm", dimensions:"33x22.9 cm", location:"Paris", museum:"Mus\u00e9e d'Orsay", inv:"", img:"img/28.jpg", notes:"Documenting French Gothic architecture for the Mission H\u00e9liographique."},
+  {n:29, lez:8, author:"Hippolyte Bayard", life:"1801-1887", title:"Portale di Saint-Etienne, Cath\u00e9drale de Notre-Dame, Paris", date:"1847", technique:"Albumen salted paper from paper negative, 22.8x17.4 cm", dimensions:"22.8x17.4 cm", location:"Los Angeles", museum:"J. Paul Getty Museum", inv:"", img:"img/29.jpg", notes:"Architectural documentation of Notre-Dame de Paris."},
+  {n:30, lez:8, author:"\u00c9douard Baldus", life:"1813-1889", title:"Chiostro Saint-Trophime, Arles", date:"1851", technique:"Salted paper, 44.8 x 50.2 cm", dimensions:"44.8 x 50.2 cm", location:"New York", museum:"Metropolitan Museum", inv:"", img:"img/30.jpg", notes:"Monumental photograph of the Romanesque cloister."},
+  {n:31, lez:8, author:"Gustave Le Gray", life:"1820-1882", title:"La Grande Onda, S\u00e8te (The Great Wave)", date:"1857", technique:"Albumen print from glass negative, 33.7 x 41.4 cm", dimensions:"33.7 x 41.4 cm", location:"New York", museum:"Metropolitan Museum", inv:"1976.646", img:"img/31.jpg", notes:"Pioneered combination printing (two negatives - one for sky, one for sea) to achieve proper exposure for both."},
+  {n:32, lez:8, author:"Henry Peach Robinson", life:"1830-1901", title:"Fading Away", date:"1858", technique:"Albumen print, 23.8 x 37.2 cm", dimensions:"23.8 x 37.2 cm", location:"Bradford", museum:"Royal Photographic Society, National Media Museum", inv:"", img:"img/32.jpg", notes:"Combination print from 5 negatives. Controversial for depicting death of a young girl - raised debates about photography's role in art."},
+  {n:33, lez:8, author:"Andr\u00e9-Adolphe-Eug\u00e8ne Disd\u00e9ri", life:"1819-1889", title:"Adelaide Ristori in Maria Stuarda", date:"c. 1860", technique:"Albumen print (8 cartes de visite before cutting), 23 x 20 cm", dimensions:"23 x 20 cm", location:"Paris", museum:"Mus\u00e9e d'Orsay", inv:"", img:"img/33.jpg", notes:"Disd\u00e9ri patented the carte de visite format - small, inexpensive photographs that democratized portraiture."},
+  {n:34, lez:8, author:"Nadar (F\u00e9lix Tournachon)", life:"1820-1910", title:"Panth\u00e9on", date:"1854", technique:"Lithograph, 81.9 x 114.9 cm", dimensions:"81.9 x 114.9 cm", location:"New York", museum:"Metropolitan Museum", inv:"1993.1079", img:"img/34.jpg", notes:"Nadar's famous lithographic caricature featuring celebrities of the era."},
+  {n:35, lez:8, author:"F\u00e9lix Nadar", life:"1820-1910", title:"Sarah Bernhardt", date:"1862", technique:"Albumen print, 10.6 x 15 cm", dimensions:"10.6 x 15 cm", location:"Barcelona", museum:"Centre Internacional de Fotografia", inv:"", img:"img/35.jpg", notes:"Iconic portrait of the legendary actress. Nadar was a master of psychological portraiture."},
+  {n:36, lez:9, author:"Charles N\u00e8gre", life:"1820-1880", title:"Chimney Sweeps Walking", date:"1852", technique:"Albumen print from waxed paper negative, 15.9 x 21.7 cm", dimensions:"15.9 x 21.7 cm", location:"London", museum:"Sotheby's Picture Library, private collection", inv:"", img:"img/36.jpg", notes:"Early street photography capturing spontaneous movement of chimney sweeps."},
+  {n:37, lez:9, author:"Peter Henry Emerson & Thomas F. Goodall", life:"", title:"Gathering Water-Lilies", date:"1886", technique:"Platinum print, 19.8 x 29.2 cm", dimensions:"19.8 x 29.2 cm", location:"Los Angeles", museum:"J. Paul Getty Museum", inv:"84.XO.1268.10", img:"img/37.jpg", notes:"Emerson advocated 'naturalistic photography' - differential focusing to mimic human vision."},
+  {n:38, lez:9, author:"George Davison", life:"1854-1930", title:"The Onion Field", date:"1890", technique:"Photogravure 15.4 x 20.4 cm (in Camera Work XVIII, 1907)", dimensions:"15.4 x 20.4 cm", location:"", museum:"", inv:"", img:"img/38.jpg", notes:"Landmark pictorialist image made with a pinhole camera. Sparked debate about sharpness vs. artistic impression."},
+  {n:39, lez:9, author:"Frederick H. Evans", life:"1853-1943", title:"Kelmscott Manor Photographs", date:"1896", technique:"Platinum prints, album with 31 platinotypes", dimensions:"", location:"New York", museum:"Metropolitan Museum", inv:"68.519 (1-31)", img:"img/39.jpg", notes:"Evans was celebrated for his architectural photography, especially of English cathedrals and historic buildings."},
+  {n:40, lez:10, author:"Heinrich K\u00fchn", life:"1866-1944", title:"Auslaufendes Segelboot (Sailing boat leaving)", date:"c. 1897", technique:"Gum bichromate, published as photogravure 39.1 x 28.5 cm", dimensions:"39.1 x 28.5 cm", location:"", museum:"Die Kunst in der Photographie, 1898", inv:"", img:"img/40.jpg", notes:"Gum bichromate process gave pictorialist photographers painterly control over their prints."},
+  {n:41, lez:10, author:"Frank Meadow Sutcliffe", life:"1853-1941", title:"Im Hafen (Whitby harbour, Yorkshire)", date:"1897", technique:"Gum bichromate, photogravure in Die Kunst in der Photographie", dimensions:"", location:"", museum:"", inv:"", img:"img/41.jpg", notes:"Sutcliffe documented life in the fishing village of Whitby, Yorkshire."},
+  {n:42, lez:10, author:"George Davison", life:"1854-1930", title:"Oxford Street \u2013 A Wet Day", date:"1897", technique:"Photogravure", dimensions:"", location:"", museum:"", inv:"", img:"img/42.jpg", notes:"Pictorialist street scene capturing the atmosphere of a rainy London day."},
+  {n:43, lez:10, author:"Alfred Stieglitz", life:"1864-1946", title:"Mending Nets (Holland)", date:"1894 (printed 1895/6)", technique:"Platinum print, 15.5 x 20.9 cm; photogravure in Camera Notes, 1899", dimensions:"15.5 x 20.9 cm", location:"Washington D.C.", museum:"National Gallery of Art, Stieglitz Collection", inv:"1949.3.200", img:"img/43.jpg", notes:"Early pictorialist work by Stieglitz during his European travels."},
+  {n:44, lez:11, author:"Alfred Stieglitz", life:"1864-1946", title:"Mending Nets (Holland)", date:"1894 (printed 1895/6)", technique:"Platinum print, 15.5 x 20.9 cm", dimensions:"15.5 x 20.9 cm", location:"Washington D.C.", museum:"National Gallery of Art", inv:"1949.3.200", img:"img/44.jpg", notes:"Published as photogravure in Camera Notes, 1899. Listed again for Lez. 11."},
+  {n:45, lez:11, author:"Robert Demachy", life:"", title:"Study in Red", date:"1895", technique:"Photogravure 15.5 x 21 cm, in Camera Notes vol. 2, n. 1, 1898", dimensions:"15.5 x 21 cm", location:"", museum:"", inv:"", img:"img/45.jpg", notes:"Demachy was a leading French pictorialist known for gum bichromate manipulation."},
+  {n:46, lez:11, author:"Clarence White", life:"1871-1925", title:"Spring \u2013 A Triptych", date:"1899", technique:"Platinum print", dimensions:"", location:"New York", museum:"Metropolitan Museum", inv:"33.43.322", img:"img/46.jpg", notes:"Soft-focus pictorialist triptych showing an idealized vision of spring."},
+  {n:47, lez:11, author:"Edward Steichen", life:"1879-1973", title:"Self-Portrait with Palette", date:"1901", technique:"Gum bichromate print, 21 x 15.9 cm", dimensions:"21 x 15.9 cm", location:"Los Angeles", museum:"J. Paul Getty Museum", inv:"", img:"img/47.jpg", notes:"Steichen portrays himself as painter-photographer, blurring the line between the two arts."},
+  {n:48, lez:11, author:"Alfred Stieglitz", life:"1864-1946", title:"The Flatiron", date:"1903 (printed 1920/39)", technique:"Gelatin silver print, 12 x 8.4 cm on card 32 x 24.8 cm", dimensions:"12 x 8.4 cm", location:"New York", museum:"Metropolitan Museum", inv:"1949.707", img:"img/48.jpg", notes:"Iconic image of the Flatiron Building in a winter snowstorm. Shows transition from pictorialism to modernism."},
+  {n:49, lez:11, author:"Edward Steichen", life:"1879-1973", title:"The Flat Iron Building", date:"1904 (printed 1909)", technique:"Gum bichromate over platinum print, 47.8 x 38.4 cm", dimensions:"47.8 x 38.4 cm (on support 87.9 x 75.2 cm)", location:"New York", museum:"Metropolitan Museum", inv:"", img:"img/49.jpg", notes:"One of the most expensive photographs ever sold. Painterly interpretation of the same building Stieglitz photographed."},
+  {n:50, lez:11, author:"Alvin Langdon Coburn", life:"1882-1966", title:"The Flat Iron Building", date:"1911", technique:"Gum bichromate over platinum print, 45.5 x 34.5 cm", dimensions:"45.5 x 34.5 cm", location:"Madrid", museum:"Reina Sof\u00eda", inv:"AD03619-005", img:"img/50.jpg", notes:"Third famous interpretation of the Flatiron Building, showing the building's iconic status among photographers."},
+  {n:51, lez:12, author:"Gertrude K\u00e4sebier", life:"1852-1934", title:"Blessed Art Thou Among Women", date:"1899", technique:"Platinum print, 23 x 13.2 cm", dimensions:"23 x 13.2 cm", location:"New York", museum:"Metropolitan Museum", inv:"33.43.132", img:"img/51.jpg", notes:"Published in Camera Notes (1900) and Camera Work (1903). Symbolist-influenced pictorialist masterwork."},
+  {n:52, lez:12, author:"Edward Steichen", life:"1879-1973", title:"Rodin - Le Penseur (The Thinker)", date:"1902", technique:"Gum bichromate from two negatives, 39.6 x 48.3 cm", dimensions:"39.6 x 48.3 cm (on support 79.4 x 87.6 cm)", location:"New York", museum:"Metropolitan Museum", inv:"2005.100.289", img:"img/52.jpg", notes:"Double exposure combining The Thinker sculpture with Victor Hugo's monument. Masterpiece of pictorialist photography."},
+  {n:53, lez:12, author:"Alfred Stieglitz", life:"1864-1946", title:"The Steerage", date:"1907 (printed as photogravure 1915)", technique:"Photogravure, 33.4 x 26.4 cm", dimensions:"33.4 x 26.4 cm", location:"Los Angeles", museum:"J. Paul Getty Museum", inv:"84.XM.695", img:"img/53.jpg", notes:"Stieglitz considered this his greatest photograph. Shows passengers on a transatlantic liner, marking his shift toward modernism."},
+  {n:54, lez:12, author:"Paul Strand", life:"1890-1976", title:"Blind Woman", date:"1916", technique:"Platinum print, 34 x 25.7 cm", dimensions:"34 x 25.7 cm", location:"New York", museum:"Metropolitan Museum, Stieglitz Collection", inv:"33.43.334", img:"img/54.jpg", notes:"Candid street portrait marking the birth of straight photography. The subject wears a sign reading 'BLIND'."},
+  {n:55, lez:12, author:"Paul Strand", life:"1890-1976", title:"Porch Railings, Twin Lakes, Connecticut", date:"1916", technique:"Platinum print, 32.8 x 24.6 cm", dimensions:"32.8 x 24.6 cm", location:"New York", museum:"Metropolitan Museum", inv:"", img:"img/55.jpg", notes:"Abstract study of light and shadow. Pioneering work in photographic abstraction."},
+  {n:56, lez:14, author:"Alfred Stieglitz", life:"1864-1946", title:"Equivalent", date:"1923", technique:"Gelatin silver print, 12.2 x 9.2 cm", dimensions:"12.2 x 9.2 cm", location:"Chicago", museum:"Art Institute of Chicago", inv:"1949.795", img:"img/56.jpg", notes:"Series of cloud photographs meant to express emotions through pure form - a radical step toward photographic abstraction."},
+  {n:57, lez:14, author:"Edward Weston", life:"1886-1958", title:"Excusado (Toilet)", date:"1925", technique:"Gelatin silver print, 24.2 x 19.2 cm on card 45.1 x 35.3 cm", dimensions:"24.2 x 19.2 cm", location:"New York", museum:"Metropolitan Museum", inv:"2005.100.144", img:"img/57.jpg", notes:"Weston transforms a mundane object into a sculptural form, exemplifying straight photography and the search for 'significant form'."},
+  {n:58, lez:14, author:"L\u00e1szl\u00f3 Moholy-Nagy", life:"", title:"Malerei Fotografie Film", date:"1925", technique:"Book (Bauhausb\u00fccher series), internal page: Balconies", dimensions:"", location:"Munich", museum:"Published by Langen", inv:"", img:"img/58.jpg", notes:"Influential Bauhaus book theorizing the relationship between painting, photography and film. Advocates for 'the optical truth of perspective construction'."},
+  {n:59, lez:16, author:"Paul Citroen", life:"1896-1983", title:"Metropolis", date:"1923", technique:"Gelatin silver print, 20 x 15.3 cm", dimensions:"20 x 15.3 cm", location:"New York", museum:"MoMA", inv:"1651.2001", img:"img/59.jpg", notes:"Photomontage of urban architecture expressing the dynamism and overwhelming scale of the modern city."},
+  {n:60, lez:16, author:"Albert Renger-Patzsch", life:"1897-1966", title:"B\u00fcgeleisen Schuhfabrikation, Faguswerk Alfeld", date:"1926", technique:"Gelatin silver print, 22.9 x 16.8 cm", dimensions:"22.9 x 16.8 cm", location:"Los Angeles", museum:"Los Angeles County Museum of Art", inv:"Albert Renger-Patzsch Archive", img:"img/60.jpg", notes:"Industrial photography exemplifying Neue Sachlichkeit (New Objectivity). Sharp, precise documentation of manufactured objects."},
+  {n:61, lez:16, author:"Karl Blossfeldt", life:"1865-1932", title:"Impatiens glandulifera", date:"1928", technique:"Gelatin silver print, 25.9 x 20 cm", dimensions:"25.9 x 20 cm", location:"Los Angeles", museum:"J. Paul Getty Museum", inv:"84.XM.142.4", img:"img/61.jpg", notes:"Close-up botanical photography revealing natural forms as art. Published in 'Urformen der Kunst' (Art Forms in Nature)."},
+  {n:62, lez:16, author:"Umbo (Otto Umbehr)", life:"1902-1980", title:"Mystery of the Street", date:"1928", technique:"Gelatin silver print, 29 x 23.5 cm", dimensions:"29 x 23.5 cm", location:"New York", museum:"Metropolitan Museum", inv:"1987.1100.49", img:"img/62.jpg", notes:"Bauhaus-trained photographer's view from above, showing pedestrians as abstract shadows."},
+  {n:63, lez:16, author:"August Sander", life:"1876-1964", title:"Capomastro (Master Builder), Cologne", date:"c. 1932", technique:"Gelatin silver print", dimensions:"", location:"", museum:"", inv:"", img:"img/63.jpg", notes:"From the monumental series 'Menschen des 20. Jahrhunderts' (People of the 20th Century) - a systematic typological portrait of German society."},
+  {n:64, lez:16, author:"Aleksandr Rodchenko", life:"1891-1956", title:"Cover of Sovetskoe Foto (Soviet Photography)", date:"October 1927", technique:"Magazine cover", dimensions:"", location:"", museum:"", inv:"", img:"img/64.jpg", notes:"Rodchenko pioneered dynamic angles and bold graphic compositions in Soviet avant-garde photography."},
+  {n:65, lez:16, author:"Andr\u00e9 Kert\u00e9sz", life:"1894-1985", title:"Distortion #34", date:"1933", technique:"Gelatin silver print, 22.6 x 34.4 cm", dimensions:"22.6 x 34.4 cm", location:"New York", museum:"MoMA", inv:"110.1985", img:"img/65.jpg", notes:"From the Distortions series using funhouse mirrors to create surreal nude studies."},
+  {n:66, lez:16, author:"Man Ray", life:"1890-1976", title:"Larmes (Tears)", date:"c. 1932", technique:"Gelatin silver print, 22.9 x 29.8 cm", dimensions:"22.9 x 29.8 cm", location:"Los Angeles", museum:"Getty Museum", inv:"84.XM.230.2", img:"img/66.jpg", notes:"Surrealist photograph showing glass beads as tears on a woman's face. Blurs reality and artifice."},
+  {n:67, lez:16, author:"Eadweard Muybridge", life:"1830-1904", title:"The Horse in Motion (Sallie Gardner)", date:"1878", technique:"Albumen print, automatic electronic photographs (2/100 sec)", dimensions:"", location:"Washington D.C.", museum:"Library of Congress", inv:"2007678037", img:"img/67.jpg", notes:"Commissioned by Leland Stanford to prove all four hooves leave the ground during a gallop. Pioneered sequential motion photography."},
+  {n:68, lez:16, author:"Jules-\u00c9tienne Marey", life:"1830-1904", title:"Joinville Soldier Walking", date:"1883", technique:"Geometric chronophotography (multiple images on single glass negative)", dimensions:"", location:"Paris", museum:"Coll\u00e8ge de France", inv:"7975/M326/91e", img:"img/68.jpg", notes:"Geometric chronophotography - white lines on black figure trace joint movements during walking."},
+  {n:69, lez:16, author:"Andr\u00e9 Kert\u00e9sz", life:"1894-1985", title:"La Plaque cass\u00e9e (The Broken Plate)", date:"1929 (printed 1963)", technique:"Gelatin silver print, 18x23 cm", dimensions:"18x23 cm", location:"Madrid", museum:"Reina Sof\u00eda", inv:"DE01610", img:"img/69.jpg", notes:"A broken glass plate negative becomes the subject itself - meta-photographic commentary."},
+  {n:70, lez:16, author:"Man Ray & Marcel Duchamp", life:"1890-1976 / 1887-1968", title:"\u00c9levage de Poussi\u00e8re (Dust Breeding)", date:"1920 (printed c. 1967)", technique:"Gelatin silver print, 23.9 x 30.4 cm", dimensions:"23.9 x 30.4 cm", location:"New York", museum:"Metropolitan Museum", inv:"69.521", img:"img/70.jpg", notes:"Photograph of dust accumulated on Duchamp's 'Large Glass'. Looks like an aerial landscape. Collaboration between two Dada/Surrealist masters."},
+  {n:71, lez:16, author:"Andr\u00e9 Kert\u00e9sz", life:"1894-1985", title:"Les lunettes et la pipe de Mondrian (Mondrian's Glasses and Pipe)", date:"1926", technique:"Gelatin silver bromide print, 15.7 x 18.2 cm", dimensions:"15.7 x 18.2 cm", location:"Chicago", museum:"Art Institute of Chicago, Julien Levy Collection", inv:"1975.1137", img:"img/71.jpg", notes:"Simple still life at Mondrian's studio captures the artist's personality through his everyday objects."},
+  {n:72, lez:16, author:"Herbert Bayer", life:"1900-1985", title:"Humanly Impossible (Self-Portrait)", date:"1932", technique:"Gelatin silver print, 38.9 x 29.3 cm", dimensions:"38.9 x 29.3 cm", location:"New York", museum:"MoMA", inv:"1611.2001", img:"img/72.jpg", notes:"Surrealist photomontage self-portrait. Bauhaus graphic designer and photographer."},
+  {n:73, lez:18, author:"Eug\u00e8ne Atget", life:"1857-1927", title:"Eclipse", date:"1911 (printed 1956)", technique:"Gelatin silver bromide print from glass negative", dimensions:"", location:"New York", museum:"Metropolitan Museum", inv:"56.610.4", img:"img/73.jpg", notes:"People watching a solar eclipse. Atget documented old Paris with systematic dedication."},
+  {n:74, lez:18, author:"Eug\u00e8ne Atget", life:"1857-1927", title:"Coin de la rue Valette et Panth\u00e9on", date:"1925 (printed 1978)", technique:"Gelatin silver print, 17.8 x 23.7 cm", dimensions:"17.8 x 23.7 cm", location:"Melbourne", museum:"National Gallery of Victoria", inv:"", img:"img/74.jpg", notes:"Atget's systematic documentation of Paris streets, capturing the city's historical character."},
+  {n:75, lez:18, author:"Eli Lotar", life:"1905-1969", title:"Aux Abattoirs de la Villette", date:"1929", technique:"Gelatin silver print, 22.2 x 16.2 cm", dimensions:"22.2 x 16.2 cm", location:"New York", museum:"Metropolitan Museum of Art", inv:"", img:"img/75.jpg", notes:"Stark images from the Paris slaughterhouse. Published in Documents magazine, linked to Georges Bataille's ideas."},
+  {n:76, lez:18, author:"Berenice Abbott", life:"1898-1991", title:"New York at Night", date:"1932", technique:"Gelatin silver print, 32.7 x 26.9 cm", dimensions:"32.7 x 26.9 cm", location:"New York", museum:"MoMA", inv:"", img:"img/76.jpg", notes:"Part of Abbott's ambitious 'Changing New York' project documenting the city's transformation."},
+  {n:77, lez:18, author:"Walker Evans", life:"1903-1975", title:"Brooklyn Bridge, New York", date:"1929", technique:"Gelatin silver print, 8.7 x 15 cm (series of 9)", dimensions:"8.7 x 15 cm", location:"New York", museum:"Metropolitan Museum, Walker Evans Archive", inv:"397.1980", img:"img/77.jpg", notes:"Early work by Evans, already showing his signature documentary style."},
+  {n:78, lez:18, author:"Walker Evans", life:"1903-1975", title:"Female Pedestrian", date:"1929-31", technique:"Gelatin silver print, 14.4 x 16.7 cm", dimensions:"14.4 x 16.7 cm", location:"Los Angeles", museum:"J. Paul Getty Museum", inv:"", img:"img/78.jpg", notes:"Anonymous street portrait - Evans' interest in everyday American life."},
+  {n:79, lez:18, author:"Walker Evans", life:"1903-1975", title:"Sidewalk and Shopfront, New Orleans", date:"1935", technique:"Gelatin silver print, 23.6 x 17.7 cm", dimensions:"23.6 x 17.7 cm", location:"New York", museum:"MoMA", inv:"", img:"img/79.jpg", notes:"Part of Evans' work for the FSA (Farm Security Administration). Documentary photography as art."},
+  {n:80, lez:18, author:"Arthur Rothstein", life:"1915-1985", title:"Farmer and Sons Walking in Dust Storm, Cimarron County, Oklahoma", date:"1936", technique:"Gelatin silver print", dimensions:"", location:"Washington D.C.", museum:"Library of Congress", inv:"", img:"img/80.jpg", notes:"Iconic Dust Bowl image for the FSA. One of the most powerful Depression-era photographs."},
+  {n:81, lez:18, author:"Dorothea Lange", life:"1895-1965", title:"Migrant Mother, Nipomo, California", date:"1936", technique:"Gelatin silver print (original unretouched version)", dimensions:"", location:"Washington D.C.", museum:"Library of Congress", inv:"", img:"img/81.jpg", notes:"The most iconic FSA photograph. Shows Florence Owens Thompson with her children. Became a symbol of the Great Depression."},
+  {n:82, lez:18, author:"Robert Capa (Endre Ern\u0151 Friedmann)", life:"1913-1954", title:"Morte di un soldato (Death of a Loyalist Soldier), Cordoba", date:"5 September 1936", technique:"Gelatin silver print, 27 x 33.7 cm", dimensions:"27 x 33.7 cm", location:"", museum:"Phillips Auction", inv:"", img:"img/82.jpg", notes:"The Falling Soldier - one of the most famous and debated war photographs. Its authenticity has been questioned."},
+  {n:83, lez:18, author:"Robert Capa", life:"1913-1954", title:"D-Day, Omaha Beach", date:"6 June 1944", technique:"Gelatin silver print", dimensions:"", location:"New York", museum:"International Center of Photography", inv:"", img:"img/83.jpg", notes:"One of only 11 surviving frames from Capa's D-Day landing coverage. Most were destroyed in a darkroom accident."},
+  {n:84, lez:18, author:"Erich Salomon", life:"1886-1944", title:"The United States Supreme Court", date:"1932", technique:"Gelatin silver print (printed 1950s)", dimensions:"", location:"Washington D.C.", museum:"Smithsonian", inv:"edanmdm:nmah_1004978", img:"img/84.jpg", notes:"Pioneer of candid photojournalism. Photographed the Supreme Court in session - previously forbidden."},
+  {n:85, lez:18, author:"Felix Man", life:"1893-1985", title:"Mussolini at Palazzo Venezia in Rome", date:"1931", technique:"Gelatin silver print, 19.7 x 25.5 cm", dimensions:"19.7 x 25.5 cm", location:"Frankfurt", museum:"St\u00e4del Museum", inv:"St.F.128", img:"img/85.jpg", notes:"From a reportage on a day in Mussolini's life for M\u00fcnchner Illustrierte Presse. Pioneering photojournalism."},
+  {n:86, lez:18, author:"Martin Munk\u00e1csi", life:"1896-1963", title:"Liberia", date:"1931", technique:"Gelatin silver print", dimensions:"", location:"New York", museum:"Metropolitan Museum", inv:"1987.1100.35", img:"img/86.jpg", notes:"Three boys running into the surf. Inspired Henri Cartier-Bresson to take up photography."},
+  {n:87, lez:18, author:"Bill Brandt", life:"1904-1983", title:"Northumbrian Coal Miner Eating His Evening Meal", date:"1937", technique:"Gelatin silver print, 33.97 x 29.05 cm", dimensions:"33.97 x 29.05 cm", location:"Ann Arbor", museum:"University of Michigan Museum", inv:"", img:"img/87.jpg", notes:"Social documentary photography showing working class life in Northern England."},
+  {n:88, lez:18, author:"W. Eugene Smith", life:"1918-1978", title:"Dr. Ceriani with Lee Marie Wheatley", date:"1948", technique:"Gelatin silver print", dimensions:"", location:"", museum:"", inv:"", img:"img/88.jpg", notes:"From the photo essay 'Country Doctor' in LIFE magazine. The child was kicked in the head by a horse. Smith pioneered the photo essay form."},
+  {n:89, lez:18, author:"Henri Cartier-Bresson", life:"1908-2004", title:"Valencia", date:"1933 (printed 1979)", technique:"Gelatin silver print, 19.84 x 29.53 cm", dimensions:"19.84 x 29.53 cm", location:"San Francisco", museum:"SFMoMA", inv:"", img:"img/89.jpg", notes:"Cartier-Bresson's theory of the 'decisive moment' - capturing life's fleeting, meaningful instants."},
+  {n:90, lez:18, author:"Weegee (Arthur Fellig)", life:"1899-1968", title:"Macy's Thanksgiving Day Parade", date:"c. 1942", technique:"Gelatin silver print, 26.8 x 33.9 cm", dimensions:"26.8 x 33.9 cm", location:"New York", museum:"MoMA", inv:"339.1982", img:"img/90.jpg", notes:"Weegee was the quintessential tabloid photographer, famous for his flash-lit New York night scenes."},
+  {n:91, lez:18, author:"Robert Frank", life:"", title:"Political Rally, Chicago", date:"1956", technique:"Gelatin silver print, 55.9 x 35.6 cm", dimensions:"55.9 x 35.6 cm", location:"", museum:"Phillips Auction", inv:"", img:"img/91.jpg", notes:"From 'The Americans' - revolutionary photobook that challenged American idealism with raw, subjective documentary."},
+  {n:92, lez:18, author:"Diane Arbus", life:"1923-1971", title:"Mexican Dwarf in His Hotel Room in N.Y.C. (Lauro Morales)", date:"1970", technique:"Gelatin silver print, 38 x 36.3 cm", dimensions:"38 x 36.3 cm", location:"New York", museum:"Metropolitan Museum", inv:"", img:"img/92.jpg", notes:"Arbus sought out marginalized people, presenting them with dignity and unsettling directness."},
+  {n:93, lez:18, author:"Lisette Model", life:"1901-1983", title:"Promenade des Anglais", date:"c. 1938 (printed 1976)", technique:"Gelatin silver print, 49.4 x 40.3 cm", dimensions:"49.4 x 40.3 cm", location:"New York", museum:"MoMA", inv:"80.1941", img:"img/93.jpg", notes:"Bold, confrontational portraits of wealthy vacationers on the French Riviera. Model was Arbus's teacher."},
+  {n:94, lez:18, author:"William Klein", life:"1928-2022", title:"Candy Store, New York", date:"1953", technique:"Gelatin silver print, 19.7 x 29.8 cm", dimensions:"19.7 x 29.8 cm", location:"", museum:"Private collection", inv:"", img:"img/94.jpg", notes:"Klein's aggressive, in-your-face style revolutionized street photography. Wide-angle, high contrast, blurred."},
+  {n:95, lez:18, author:"Lee Friedlander", life:"1934-", title:"Self Portrait, New York City", date:"1966", technique:"Gelatin silver print, 14.6 x 22 cm", dimensions:"14.6 x 22 cm", location:"New York", museum:"MoMA", inv:"669.2000", img:"img/95.jpg", notes:"Friedlander's self-portraits include his shadow or reflection in urban landscapes - exploring the photographer's presence."},
+  {n:96, lez:18, author:"Garry Winogrand", life:"1928-1984", title:"Central Park Zoo, New York", date:"1967 (reprinted 1974)", technique:"Gelatin silver print on secondary support 37.5 x 50.2 cm", dimensions:"37.5 x 50.2 cm", location:"Brooklyn", museum:"Brooklyn Museum", inv:"83.266.10", img:"img/96.jpg", notes:"A mixed-race couple holding chimpanzees - captures social tensions of 1960s America with ambiguity."},
+  {n:97, lez:18, author:"Penelope Umbrico", life:"", title:"541,795 Suns from Sunsets from Flickr (partial) 01/26/06", date:"2006", technique:"Computer prints (each 10.2 x 15.2 cm)", dimensions:"10.2 x 15.2 cm each", location:"", museum:"", inv:"", img:"img/97.jpg", notes:"Appropriation art using thousands of sunset photos from Flickr. Comments on digital photography's repetition and shared visual culture."},
+  {n:98, lez:18, author:"Yto Barrada", life:"", title:"Carta da parati Tangeri (Wallpaper Tangier)", date:"2001", technique:"Chromogenic print, 60 x 60 cm", dimensions:"60 x 60 cm", location:"", museum:"", inv:"", img:"img/98.jpg", notes:"From the series 'A Life Full of Holes: The Strait Project' about migration across the Strait of Gibraltar."},
+  {n:99, lez:18, author:"Hiroshi Sugimoto", life:"", title:"Akron Civic, Ohio", date:"1980", technique:"Gelatin silver print, 50.8 x 61 cm", dimensions:"50.8 x 61 cm", location:"Paris", museum:"Marian Goodman Gallery", inv:"", img:"img/99.jpg", notes:"Long exposure of an entire movie in a cinema - the screen becomes pure white light. Explores time and exposure."},
+  {n:100, lez:18, author:"Massimo Vitali", life:"", title:"Cefal\u00fa Nonna", date:"2008", technique:"Chromogenic print with Diasec mount, 180 x 220 cm", dimensions:"180 x 220 cm", location:"", museum:"", inv:"", img:"img/100.jpg", notes:"Large-scale beach photography examining leisure culture and contemporary social behavior."},
+  {n:101, lez:18, author:"Rineke Dijkstra", life:"", title:"Kolobrzeg, Poland, July 26, 1992", date:"1992", technique:"Color photograph, chromogenic print, 121 x 101 cm", dimensions:"121 x 101 cm", location:"London", museum:"Tate Gallery", inv:"", img:"img/101.jpg", notes:"From the Beach Portraits series. Adolescents in swimsuits - vulnerability and self-consciousness in transitional moments."},
+  {n:102, lez:18, author:"Annika von Hausswolff", life:"", title:"Hey, Buster! What Do You Know About Desire?", date:"1995", technique:"Chromogenic print on MDF, 180 x 240 cm", dimensions:"180 x 240 cm", location:"Stockholm", museum:"Galleria Andr\u00e9hn-Schiptjenko", inv:"", img:"img/102.jpg", notes:"Staged photography exploring gender, desire and the female body in contemporary art photography."},
+  {n:103, lez:18, author:"Jo Spence", life:"", title:"Exiled: Narratives of Dis-ease", date:"1990", technique:"Color photograph, 30.5 x 20.4 cm (collaboration with Tim Sheard)", dimensions:"30.5 x 20.4 cm", location:"London", museum:"Richard Saltoun Gallery", inv:"", img:"https://upload.wikimedia.org/wikipedia/en/thumb/5/5a/Jo_Spence_photo_therapy.jpg/440px-Jo_Spence_photo_therapy.jpg", notes:"Spence used photography therapeutically ('photo therapy') to explore illness, class and identity."},
+];
+
+// THEORY CONCEPTS extracted from PDFs
+const concepts = [
+  {id:1, thinker:"Erwin Panofsky", years:"1892\u20131968", concept:"Iconography & Iconology", category:"Iconology",
+   teaser:"Three levels of reading an image: what you see, what it means, and why it matters.",
+   full:"Panofsky, considered the father of visual culture studies, distinguished three levels of image reading in his study 'The Meaning of the Visual Arts' (1955):<br><br><b>1. Pre-iconographic description</b>: Recognizing the primary, natural subject matter \u2014 what we literally see (forms, colors, figures).<br><br><b>2. Iconographic analysis</b>: Identifying the secondary, conventional meaning \u2014 connecting images to literary sources, cultural themes, and traditions. For example, thirteen people seated at a table in certain poses represent the Last Supper.<br><br><b>3. Iconological synthesis</b>: Grasping the intrinsic content \u2014 the deeper cultural, philosophical, and psychological significance tied to the artist's intentions, their era, and worldview. Symbols become 'cultural symptoms.'<br><br>Panofsky argues that any object can be experienced aesthetically, not just for its function. What distinguishes a work of art is the <b>intentio</b> of its creator \u2014 the aesthetic intention cannot be absolutely determined. The interest in form, which transmits ideas and emotions, is what defines art.<br><br>Key insight: When scrolling through images on social media, we usually remain at the pre-iconographic level. Only when we pause and engage deeply can we descend to iconographic and iconological analysis."},
+  {id:2, thinker:"Charles Sanders Peirce", years:"1839\u20131914", concept:"Triadic Semiosis", category:"Semiotics",
+   teaser:"Signs work through a three-part relationship: object, sign, and interpretant.",
+   full:"Peirce, one of the fathers of Pragmatism, developed a triadic theory of signs (semiosis) based on the relationship between:<br><br><b>Object (Referent)</b>: The thing being referred to.<br><b>Sign</b>: The representation of that thing.<br><b>Interpretant</b>: The idea generated in the mind of the observer.<br><br>The process of semiosis gives primacy to the object over the subject. It is the sign that generates an idea (the interpretant) in the subject. This cognitive reflection has a social character, deriving from exchange between subjects.<br><br>Peirce's <b>theory of signs</b> distinguishes three types:<br>\u2022 <b>Icon</b>: Resembles the object (e.g., a portrait looks like the person).<br>\u2022 <b>Index</b>: Has a physical/causal connection to the object (e.g., a photograph is always an index because light from the object physically touched the film).<br>\u2022 <b>Symbol</b>: Connected to the object by convention (e.g., a flag representing a nation).<br><br>These categories are not exclusive \u2014 a photograph can be all three simultaneously. Photography is a perfect example of the <b>inextricable mix of index and icon</b>: it is an index because it proves the object existed (light radiations from the object), and simultaneously an icon because of its striking resemblance to reality. This is why it is called an 'iconic index' or 'indexical icon.'<br><br>Peirce saw photography as a field of open problems orbiting around the indexical sign without being resolved by it. <b>Indexicality</b> \u2014 the physical connection between sign and referent \u2014 is central to understanding photography's truth-claim."},
+  {id:3, thinker:"Alfred Gell", years:"1945\u20131997", concept:"Art and Agency", category:"Agency",
+   teaser:"Images possess a form of secondary agency \u2014 they act on us like social beings.",
+   full:"The British anthropologist Alfred Gell introduced the concept of <b>agency</b> in relation to images in the late 1990s. Agency theory attributes a form of subjectivity to images, radically critiquing the idea that the relationship between observer and image distributes forces unilaterally.<br><br><b>Key concepts:</b><br>\u2022 <b>Secondary agency</b>: Images exercise forms of agency \u2014 they are available to act, to make themselves act (like dolls that are available to play the role of a subject). They possess a <b>potential charge to be activated</b>.<br>\u2022 <b>Living pictures</b>: Artifacts can be animated without being alive. They are 'animated but never living' \u2014 capable of forming relationships similar to interpersonal ones.<br>\u2022 <b>Distributed person (persona distribuita)</b>: The person and their properties extend beyond the bodily boundary. Particles of subjectivity and intentionality scatter onto objects the person creates, including images.<br><br>Gell connects this to <b>Epicurus</b>, who understood images as <b>simulacra</b> \u2014 phantoms that detach from objects and fly in all directions. <b>Lucretius</b> speaks of <b>exuviae</b> (empty shells of insects) that carry the imprint of the body.<br><br>The concept of the <b>occhiuto idol</b> (idol with many eyes) is key: ancient idols from 3000 BC have disproportionately large eyes that create a frontal relationship with the spectator. The idol makes the spectator feel watched, animating the fetish. Some Hindu idols have mirror fragments in their half-closed eyes, reflecting the believer's own gaze back at them \u2014 demonstrating <b>reflected agency</b>."},
+  {id:4, thinker:"W.J.T. Mitchell", years:"1942\u2013", concept:"What Do Pictures Want?", category:"Visual Culture",
+   teaser:"Images are not passive objects \u2014 they express desires, lack, and demand our attention.",
+   full:"W.J. Thomas Mitchell, a pioneer of visual culture studies and author of 'Iconology' (1986) and 'Picture Theory' (1994), published <b>'What Do Pictures Want? The Life and Loves of Images'</b> (2005).<br><br>Mitchell argues that images express a sort of will \u2014 a <b>desiring intentionality</b> that manifests as a <b>desiring force</b>. Unlike Gell, who attributes animist agency, Mitchell sees images not as living objects but as inert ones that <b>act upon us</b>. To understand images better, we must consider them as objects with a partial form of life \u2014 <b>subaltern subjects</b> to be listened to.<br><br><b>Key ideas:</b><br>\u2022 Images send at least three incompatible messages: they <b>want to be seen</b>; they <b>don't want to be seen</b>; they are <b>indifferent to being seen</b>.<br>\u2022 The question is not what images are, but <b>what they want</b>.<br>\u2022 Images are <b>incomplete</b> \u2014 they possess only a partial form of life.<br><br><b>Picture vs. Image distinction</b>:<br>\u2022 <b>Image</b>: The immaterial content \u2014 what appears in the picture, which can survive independently as memory, reproduction, narrative.<br>\u2022 <b>Picture</b>: The material, tangible image \u2014 considered as medium/support. Mitchell compares the picture to the house/body in which the image takes up residence and incarnates its spirit.<br><br>Mitchell emphasizes the <b>materiality (apticità)</b> of images: they are made to be used, manipulated, touched. The bodily, intercorporeal relationship between images and observer is essential."},
+  {id:5, thinker:"Roland Barthes", years:"1915\u20131980", concept:"Camera Lucida & Punctum", category:"Photography Theory",
+   teaser:"The punctum is what pricks, wounds, and animates us in a photograph.",
+   full:"In his seminal essay <b>'La camera chiara: nota sulla fotografia'</b> (Camera Lucida, 1980), Roland Barthes provides not a history but an <b>epistemology of photography</b>.<br><br>Barthes denounces the invasiveness of photography as a medium that <b>objectifies the person</b>. He writes that private life 'is that zone of space, of time, in which I am not an image, not an object.' Being photographed produces a sensation of inauthenticity: 'Every time I let myself be photographed, I am immutably touched by a sensation of inauthenticity, sometimes of imposture.'<br><br>Photography represents the moment when one is 'neither a subject nor an object, but rather <b>a subject who feels becoming an object</b>.'<br><br>Barthes introduces the concept of <b>punctum</b>: something in a photograph that <b>pricks, wounds, and animates</b> the viewer in a subjective, personal way. It is an element that rises from the scene, as if shot like an arrow, and pierces the observer. The punctum contrasts with the <b>studium</b> \u2014 the cultural, linguistic, political interest we take in a photograph.<br><br>Barthes was influenced by <b>Susan Sontag</b>'s 'On Photography' (1977), which saw photography as a form of <b>'predatory violence'</b> \u2014 the photographer imposes a gaze, invading the other's sphere of safety. Sontag wrote: 'To photograph is to transform people into objects that can be symbolically possessed.'<br><br>The essence of photography, Barthes writes, is the fixation of a fragment of reality \u2014 a 'this has been' (<b>\u00e7a a \u00e9t\u00e9</b>)."},
+  {id:6, thinker:"Horst Bredekamp", years:"1947\u2013", concept:"Images That Stare Back", category:"Agency",
+   teaser:"Images possess a latent efficacy \u2014 once produced, they become autonomous and incite powerful responses.",
+   full:"Horst Bredekamp, like Panofsky a German art historian, published in 2015 his essay <b>'Immagini che ci guardano'</b> (Images That Stare Back). The title references Alfred Gell's thought.<br><br>According to Bredekamp, images come to us 'under the sign of an alien corporeality.' They do not belong to our nature, and for this reason <b>language is not adequate to explain them</b>. Once produced, images <b>become autonomous</b> and inspire both admiration and fear \u2014 they are objects capable of arousing the strongest sensations.<br><br><b>Key concepts:</b><br>\u2022 <b>Emotional involvement (coinvolgimento emotivo)</b>: Images have power not just of signification but also of emotional engagement. Bredekamp argues that images are realized thanks to their <b>'human dimension'</b>.<br>\u2022 <b>Latent efficacy (efficacia latente)</b>: Images possess a potentiality that awaits activation by the spectator. The viewer does not passively receive but <b>activates</b> the image. The artifact confronts the spectator with a counterpart they cannot control.<br><br>Bredekamp develops the idea of <b>iconic autonomy</b>: the fascination of images means that once produced, they always possess something disturbing. The image is always different from the human's own vision of it \u2014 it is never merely the echo of its own seeing.<br><br>The image exercises a power that is only partly controllable by humans \u2014 at the perceptual, cognitive, and behavioral levels."},
+  {id:7, thinker:"Gottfried Boehm", years:"1942\u2013", concept:"The Iconic Turn", category:"Iconic Turn",
+   teaser:"In 2009, Boehm declared a shift from the dominance of language to the dominance of images.",
+   full:"The German philosopher and art historian Gottfried Boehm published in 2009 <b>'La svolta iconica'</b> (The Iconic Turn), referencing Richard Rorty's 'Linguistic Turn' (1967) and the structuralist shift.<br><br>The iconic turn began in the late 1990s, especially in the US and Germany, where <b>visual culture studies</b> developed to investigate this paradigm shift. It represents a <b>crisis of the logos</b> \u2014 information is now primarily conveyed through images, not just text.<br><br><b>Key concepts:</b><br>\u2022 <b>Surplus</b>: The power and efficacy of images derive from a surplus that depends on their linguistic nature but surpasses the material in which they are inscribed. Images have the capacity to <b>impress us beyond our consciousness</b>.<br>\u2022 <b>Overcoming facticity (superamento della fatticit\u00e0)</b>: Images transcend the mere copying of reality. For Boehm, the image truly exists when it makes explicit its visual difference from the sensible world \u2014 the opposition between <b>factum and fictum</b>. The image behaves as a 'non-image' the more it tries to perfectly copy reality.<br>\u2022 <b>Differenza e comunica</b>: Power is simultaneously visual and logical, belonging inevitably to material culture; yet it allows a sense to appear that surpasses all facticity.<br><br>The iconic turn has involved not only art history and semiotics but also literature, linguistics, sociology, and psychology. Images act in a force field, together with other images in the same space-time. There is the image, the gaze, but also the atmosphere and the moment in which one looks at it."},
+  {id:8, thinker:"Harun Farocki", years:"1944\u20132014", concept:"Operational Images", category:"Operational Images",
+   teaser:"Images created not to represent but to act \u2014 machine vision that performs tasks in the world.",
+   full:"The German filmmaker and video artist Harun Farocki first identified <b>operational images (immagini operative)</b> \u2014 a type of picture whose agency translates into concrete action in the world.<br><br>Operational images are distinguished from all other images because they are <b>not created for edifying, instructive, or representational purposes</b> but to cooperate in a precise technical process, performing a specific and concrete task.<br><br><b>Key moments:</b><br>\u2022 Operational images emerged during the <b>First Gulf War (1991)</b>: footage from the point of view of a 'smart missile' approaching its target. The weapons exercised a <b>'targeted gaze' (sguardo mirato)</b> \u2014 the image had 'attentive eyes' that guaranteed the exact execution of the task.<br>\u2022 What we were watching was <b>an action, not a representation</b>. The image has eyes and an intention.<br>\u2022 The image becomes the surrogate of the human, the agent in an increasingly automated chain of operations.<br><br>Farocki opens his documentary <b>'War at a Distance'</b> (2003) with these images. Two types: a black-and-white low-resolution one from the missile's camera, and a color computer-generated one for human viewers \u2014 the second is a 'courtesy gesture' from machine to human.<br><br>The <b>recognition</b> function is key: the machine does not truly 'see' but stores data and overlays patterns. When the live video matches the database schema, recognition occurs and the war action is triggered.<br><br><b>Algorithmic images</b> are the latest evolution: they exist as pure data without needing to manifest as visible, tangible objects. They speak to the world's matter, not to human senses."},
+  {id:9, thinker:"Martin Heidegger", years:"1889\u20131976", concept:"Weltbild & the Iconosphere", category:"Visual Culture",
+   teaser:"The world has been conquered as image \u2014 reality is dissolved into its visible appearance.",
+   full:"The philosopher Martin Heidegger anticipated the visual turn in 1938 when he spoke of the <b>Weltbild</b> (world-picture), the epoch of the image of the world, identifying two consequences:<br><br><b>1. Multiplication of images</b>: In 1938, this was primarily through illustrated magazines. Today, humanity produces approximately one trillion images per year.<br><br><b>2. Substitution of direct experience</b>: A conquest of the <b>world resolved into image</b>. 'Resolved' (from German 'aufl\u00f6sen') means to untie, to disentangle elements that were interwoven. Complexity is undone; the world is reduced to its visible appearance. Not only do images multiply exponentially, but <b>the world itself becomes an image</b>.<br><br>This has evolved into what is now called the <b>iconosphere</b> \u2014 which has replaced the biosphere that characterized tens of thousands of years of human history. Some scholars see dangers: images are like traps, life is wrapped and trapped in images.<br><br>As <b>Bernard Stiegler</b> noted: 'Every experience that human beings have is in some way mediated by technical and technological instruments.' Today, <b>Epist\u00e9me and T\u00e9chne</b> are more than ever implicated \u2014 our knowledge and opinion of the world is mediated by images.<br><br>Today's generations grow up at the rhythm of the iconosphere (8 years) rather than the biosphere (25 years). The system of <b>living images (immagini viventi)</b> becomes the privileged social system on which our lives depend."},
+  {id:10, thinker:"Bernard Stiegler", years:"1952\u20132020", concept:"Pharmakon", category:"Visual Culture",
+   teaser:"The iconosphere is like a pharmakon \u2014 simultaneously a poison and a medicine.",
+   full:"The French philosopher Bernard Stiegler proposed that the iconosphere functions as a <b>pharmakon</b> \u2014 a Greek term designating something that is <b>simultaneously a poison and a medicine</b>.<br><br>Through the use of reason, one can increase its curative function and reduce its toxicity. In this perspective, visual culture studies themselves are like a pharmakon \u2014 they are tools of analysis and political position-taking (i.e., publicly expressed opinion) in the face of the images we confront.<br><br>The pervasive presence of images conditions us unconsciously. We grow accustomed to 'visual noise' \u2014 like someone living near a bell tower who eventually stops hearing the bells. Images are perceived without our being conscious of it (cf. studies on subliminal images from the 1970s).<br><br>Stiegler noted that 'every experience that human beings have is in some way mediated by technical and technological instruments.' Today, <b>Epist\u00e9me</b> (knowledge) and <b>T\u00e9chne</b> (technique) are more implicated than ever. Our knowledge, cognition, and opinion of the world is thoroughly mediated by images.<br><br>The philosopher Jean-Luc Nancy similarly signals the transformation of the world from a system of production of things into a <b>system of production of images</b>."},
+  {id:11, thinker:"L\u00e1szl\u00f3 Moholy-Nagy", years:"1895\u20131946", concept:"New Vision (Nuova visione)", category:"Visual Culture",
+   teaser:"Photography reveals what the human eye cannot see \u2014 the camera as an extension of perception.",
+   full:"L\u00e1szl\u00f3 Moholy-Nagy, a Hungarian painter, photographer, and Bauhaus teacher, coined the expression <b>'Nuova visione' (New Vision)</b> in his essay <b>'Malerei Fotografie Film'</b> (Painting Photography Film, 1925).<br><br>The New Vision refers to what the photographic machine can offer and reveal <b>that is not accessible to the human eye</b>. Photography extends human perception into realms previously invisible.<br><br>As Walter Benjamin quoted Moholy-Nagy in his 'Short History of Photography': 'Not the person who ignores the alphabet, but the one who ignores photography, will be the illiterate of the future.'<br><br>This idea was foundational for the development of <b>visual culture studies</b> \u2014 a varied system of knowledge that developed within this theoretical horizon. The New Vision emphasized photography's unique capacities: extreme close-ups, unusual angles, photograms, photomontage, and other techniques that reveal aspects of reality imperceptible to the naked eye."},
+  {id:12, thinker:"Nicholas Mirzoeff", years:"", concept:"Visual Turn & Visuality", category:"Visual Culture",
+   teaser:"The modern tendency to visualize existence \u2014 depicting what is not necessarily visual.",
+   full:"Nicholas Mirzoeff, an important author in visual culture studies, speaks of the <b>visual turn</b> as the 'modern tendency to depict or visualize existence [...] [visualizing] things that are not necessarily visual.'<br><br>The power of the image is culturally conditioned. Mirzoeff emphasizes that <b>visuality</b> is not just about seeing but about the social and political structures that determine what can be seen, by whom, and how.<br><br>The concept connects to the broader historical shifts:<br>\u2022 <b>Linguistic Turn</b> (Rorty, 1967): Philosophy focused on language as the primary medium of meaning.<br>\u2022 <b>Iconic Turn</b> (Boehm, 2009): Recognition that images have become the dominant carriers of information and meaning, surpassing language.<br>\u2022 <b>Visual Turn</b> (Mirzoeff): Focus on visuality as a cultural practice with political implications.<br><br>Mirzoeff describes the selfie as the first 'visual signature of our era,' connecting it to the history of self-portraiture from mirror reflections to photography to cinema. The selfie functions as a mirror: 'while I take, I watch myself.'"},
+  {id:13, thinker:"Cl\u00e9ment Ch\u00e9roux", years:"", concept:"Visual Persistence & Diplopia", category:"Visual Culture",
+   teaser:"After 9/11, media imposed a single visual matrix \u2014 we see only what we already know.",
+   full:"Cl\u00e9ment Ch\u00e9roux analyzed the images of <b>September 11, 2001</b> \u2014 the first event to be photographed en masse from the position of the eyewitness \u2014 and spoke of <b>visual persistence (persistenza visiva)</b> and <b>diplopia</b>.<br><br><b>Diplopia</b> (seeing double) refers to the action of our cerebellum, which takes two images from our eyes and combines them into a single three-dimensional image. In doing so, it corrects various aberrations \u2014 chromatic, structural... but above all <b>cultural</b>. We <b>see only what we know</b>.<br><br>Despite 9/11 being the first massively photographed event, the available image types were surprisingly few. Official media imposed a single visual matrix: not the panic in the streets, the bodies, the cadavers, the desperation, but <b>the top floors of the towers in flames</b>.<br><br>Ch\u00e9roux identified how the media drew on <b>collective memory</b>, specifically the attack on <b>Pearl Harbor</b> (December 7, 1941) \u2014 the 'Day of Infamy.' Black-and-white photos of the era showed ships in flames, an icon recently reactivated by Michael Bay's Hollywood film. Thus the image of the burning Twin Towers was introduced as something that needed to be deciphered: it didn't show something new but rather <b>traced back to something already known</b>, inducing a sentiment of 'just war.'<br><br>This is the <b>iconography of national eroticism</b> \u2014 the effort to create symbols from second-degree representations. The towers in smoke became <b>indirect icons</b>, leaning on pre-existing symbols."},
+  {id:14, thinker:"Marie-Jos\u00e9 Mondzain", years:"1942\u2013", concept:"Image and the Human Gaze", category:"Visual Culture",
+   teaser:"The first humans invented the image to be spectators of their own hands' work.",
+   full:"The French philosopher Marie-Jos\u00e9 Mondzain writes: 'The first humans invented the image \u2014 the image of a human who was a spectator of the work of their own hands, the spectacle of human hands that lead to the <b>birth of the human gaze</b>.'<br><br>This connects to the earliest cave paintings (cf. the <b>Chauvet cave in France</b>) \u2014 the first rock images that allowed humans to know themselves and constitute themselves as subjects who could both know themselves and know the world. This marks the <b>birth of the gaze</b>.<br><br>The labor done with the hands to create the image determines the passage from <b>seeing (physiological)</b> to <b>the gaze (cultural)</b>. Image-making is thus fundamentally a humanizing instrument \u2014 the handprint of primitive humans in caves was an essential humanizing activity.<br><br>Mondzain's work connects to the production of images and human responsibility: who creates them and under what conditions they are produced matters (e.g., placing a surveillance camera). A notable exception to human production of images are <b>acheiropoieta</b> \u2014 images 'not made by human hands' (e.g., the Veronica, the Mandylion of Edessa), made by divine will. But these exceptions confirm the rule: if not humans, only God can create images."},
+  {id:15, thinker:"W.J.T. Mitchell", years:"1942\u2013", concept:"Picture vs. Image (Materiality)", category:"Materiality",
+   teaser:"The material support of an image \u2014 its body \u2014 shapes how we experience it.",
+   full:"Mitchell's distinction between <b>picture</b> and <b>image</b> is fundamental to understanding the materiality of visual artifacts:<br><br>\u2022 <b>Image</b>: The immaterial content \u2014 what appears in the picture, which can survive as memory, reproduction, or narrative, independent of any particular material support.<br>\u2022 <b>Picture</b>: The material, tangible image \u2014 the painting, the statue, the photograph considered as medium/material support. Mitchell compares the picture to the <b>house/body</b> in which the image takes up residence.<br><br>Digitalization is producing a progressive dissolution of the materiality of images. Yet the more our daily experience becomes disembodied, the more important it becomes to analyze the role and value of <b>materiality</b> in constructing the relationship between visual representations and observers.<br><br><b>Materiality</b> includes not only the matter itself but all factors that make the image function: <b>visuality and apticity</b> (the haptic, touchable quality). Cultural studies have examined the intercorporeal relationship between images and observers \u2014 images are made to be used, manipulated, touched.<br><br>Examples of materiality's importance: Tibetan monks hiding photos of the Dalai Lama in the folds of their robes during the Chinese Cultural Revolution; Quentin Tarantino choosing to shoot exclusively on film in 'Grindhouse' (2007), intentionally producing scratches and imperfections on the celluloid to emphasize its material nature."},
+  {id:16, thinker:"Acheiropoieta", years:"", concept:"Images Not Made by Human Hands", category:"Iconology",
+   teaser:"Miraculous images created by divine will \u2014 exceptions that prove humans are the makers of images.",
+   full:"<b>Acheiropoieta</b> (from Greek: 'not made by hands') are images believed to be created not by human agency but by divine will. Key examples include:<br><br>\u2022 <b>The Veronica</b>: The cloth said to bear the imprint of Christ's face.<br>\u2022 <b>The Mandylion of Edessa</b>: Another miraculous image of Christ.<br><br>These autogenous objects remove from the image the <b>quality of artifice</b>, positioning themselves without ambiguity as non-problematic representations in religious and devotional contexts \u2014 direct channels of communication with the divine.<br><br>However, apart from these exceptions, iconic representations are <b>an essentially human affair</b>. The exception confirms the rule: if not humans, only God can create images. Image-making is fundamentally a <b>humanizing activity</b>, as Marie-Jos\u00e9 Mondzain argues \u2014 from the handprints in prehistoric caves to contemporary digital art.<br><br>Acheiropoieta are relevant because they demonstrate how human cultures have always grappled with the <b>power of images</b> and the question of their origin and authority."},
+  {id:17, thinker:"Aniconism & Iconoclasm", years:"", concept:"Boundaries of the Visible", category:"Visual Culture",
+   teaser:"The prohibition or destruction of images reveals the profound power societies attribute to them.",
+   full:"<b>Aniconism</b> is not simply the opposite of iconism. It emerges as a condition in the social management of the visible and the articulation of the image's conditions of existence and possibility.<br><br>The term arose in the mid-19th century to account for the <b>absence of figurative representations</b> in the art of early civilizations \u2014 due to impossibility rather than prohibition of representing the divine in human form. Over time, this neutral quality transformed into a dogmatic position.<br><br>Aniconism rests on two aspects:<br>\u2022 A desire to maintain portions of existence and thought in <b>indivisibility and immateriality</b>.<br>\u2022 A <b>distrust</b> of figurative representation based on the principle of resemblance.<br><br><b>Iconoclasm</b> is the active destruction of images. After 9/11, the removal of the Twin Towers from many films and media was an example of the <b>representation of violence</b> \u2014 a temporary prohibition on fabricating certain types of images.<br><br>A specific social system not only determines what images are and what can be done in reaction to them, but also defines implicit or explicit <b>boundaries of visibility</b> \u2014 the very possibility that the visible becomes image, materially inscribed on some type of support.<br><br>Both aniconism and iconoclasm demonstrate a <b>concern about the power of images</b> \u2014 using the strategy of prohibition and subtraction."},
+  {id:18, thinker:"Enactivism of Images", years:"", concept:"Enactive Potential", category:"Agency",
+   teaser:"Images have an enactive potential \u2014 their structure already anticipates the emotional reactions they will trigger.",
+   full:"Some scholars (especially D'Aloia and Eugeni, cinema studies researchers) speak of the <b>enactivism of images</b>: images have an enactive potential because their structure already takes into account the emotional reactions they will trigger in subjects.<br><br>For example, a suspense scene is designed with consideration for the viewer's reaction times. The image's efficacy derives from a <b>surplus</b> (as Boehm described) that depends on the image's linguistic nature but transcends the matter in which it is inscribed.<br><br>This concept bridges Gell's agency theory, Bredekamp's latent efficacy, and Boehm's iconic surplus. The common thread: images are not passive objects waiting to be interpreted, but <b>active agents</b> that influence perception, cognition, and behavior.<br><br>The passage from <b>effect to affect</b> is crucial: the effect is immediate, but it works in memory, influences culture. Images condition our behavior, direct our actions, and have an emotional potential (agency). This influence on behavior expresses a <b>power</b> of images."},
+  {id:19, thinker:"Andr\u00e9 Bazin", years:"1918\u20131958", concept:"Ontology of the Photographic Image", category:"Photography Theory",
+   teaser:"Photography as embalming \u2014 not imitation but a prolongation of the real.",
+   full:"Andr\u00e9 Bazin, in his 'Ontology of the Photographic Image' from the work <b>'Cos'\u00e8 il cinema?'</b> (What is Cinema?), connected photography and cinema to the ancient human desire to preserve life.<br><br>Cinema, as the last of the plastic arts, definitively resolves the <b>mummy complex (complesso della mummia)</b> \u2014 humanity's ancient urge to embalm, to preserve the body against time. Photography benefits from a 'transfer' of reality: it is <b>not imitation but prolongation of the real</b>.<br><br>For Bazin, close to William Henry Fox Talbot's vision, photography is a means through which nature can show itself \u2014 without being either a taking or an addition to reality. The photograph does not reproduce the real but <b>incarnates it</b>.<br><br>This connects to the <b>incarnationist model</b>: like the Shroud of Turin, which does not reproduce but incarnates the properties of the divine, the photograph incarnates reality. The sacred icon represents a prolongation of the primary incarnation (God in Christ).<br><br>Among post-war visual phenomena are the <b>natural photographs (fotografie naturali)</b> produced by the atomic explosions at Hiroshima and Nagasaki (1945) \u2014 human bodies impressed on pavement at over 2000\u00b0C. These are not depictions of bodies but their <b>transformation into images</b> \u2014 indexical signs of past existences."},
+  {id:20, thinker:"Post-photography", years:"", concept:"The Post-photographic Turn", category:"Photography Theory",
+   teaser:"Digital photography breaks the mystical bond between image and reality.",
+   full:"<b>Post-photography</b> is a term used by art historian Geoffrey Batchen to define the new condition of the image. The proliferation of the photographic in contemporary art is not an affirmation of ready-made aesthetics but a <b>loss of photography's specificity</b> as it infiltrates painting, sculpture, and performance.<br><br>The post-photographic turn raises three precise questions:<br>\u2022 The relationship between <b>image and reality</b><br>\u2022 The relationship between <b>human eye and machine eye</b><br>\u2022 The relationship between <b>memory and network culture</b><br><br><b>Key shift</b>: If indexicality is the essence of the photographic, the operation performed by digital cameras risks <b>no longer being photography</b>. In analog photography, light physically touched the film (creating a 'cast' of the body). In digital photography, light is collected by a sensor and translated into an electronic flow \u2014 the action of light acquires a <b>more elusive materiality</b>.<br><br>However, for Mitchell, digitalization is no more artificial than the natural development in the camera obscura. For Claudio Marra, digitalization intervenes only in the phase following image creation. The electronic memorization does not invalidate the indexical substrate \u2014 the index is preserved in the <b>impression phase</b>, not in the visualization phase.<br><br>The contemporary <b>fauxtographie</b> considers the photograph as a draft to be modified and transformed (even generating fakes), no longer a trace of the real.<br><br><b>Thomas Ruff</b>'s work with his 'jpegs' series (2004-2009) exemplifies this: searching internet archives for iconic journalistic photos and hypercompressing/decompressing them, making the <b>pixel</b> visible as the minimal unit of digital visual language."},
+  {id:21, thinker:"Forensic Architecture", years:"est. 2010", concept:"The Trace in the Digital Era", category:"Visual Culture",
+   teaser:"Using degraded digital images as evidence \u2014 forensic oceanography, 3D modeling, and counter-investigation.",
+   full:"<b>Forensic Architecture</b> is an interdisciplinary field of study and practice created in 2010 by Eyal Weizman. It uses modern techniques such as <b>3D modeling</b>, data analysis, study of photographs, primarily collected in the field but also searched online, to integrate information from satellite images and official documentation.<br><br>Many of its investigations concern the Middle East, where the sheer volume of daily war coverage is massive enough to permit reconstruction of any military action.<br><br>A key area is <b>forensic oceanography</b> \u2014 investigating the militarized border imposed by European states on maritime frontiers in response to illegal migrant flows. The agency has helped prove European state responsibility in specific incidents of failed rescue at sea.<br><br>Forensic Architecture's work updates the question of the <b>trace</b> in the digital era. It uses <b>degraded materials</b> \u2014 low resolution, low definition, barely iconic \u2014 and instead valorizes the <b>indexical function</b> through new technologies (computer graphics, pattern recognition, 3D modeling).<br><br>Photography software analyzes images in 2D, calculates distances through triangulation and metadata, creates new pixels by matching multiple 2D images in 3D space. The virtual reconstruction is then confronted with the real world through <b>ground truthing</b>."},
+  {id:22, thinker:"Susan Sontag", years:"1933\u20132004", concept:"On Photography", category:"Photography Theory",
+   teaser:"Photography as predatory violence \u2014 transforming people into symbolically possessed objects.",
+   full:"The American philosopher and writer Susan Sontag published <b>'Sulla fotografia: realt\u00e0 e immagine nella nostra societ\u00e0'</b> (On Photography, 1977). She saw photography as a form of <b>'predatory violence'</b>.<br><br>The photographer imposes a gaze, invading the other person's sphere of safety. Sontag wrote: 'To photograph is equivalent to <b>transforming people into objects that can be symbolically possessed</b>.'<br><br>Today we are forced to give ourselves iconically, to become image. In roughly 40-50 years, the individual has come to define themselves increasingly through the quality of their relationship with media. This has coincided with the passage from analog mass media to digital and individual media. In new mass media, users are simultaneously <b>producers and consumers (prosumers)</b>.<br><br>Barthes was deeply influenced by Sontag's work when writing Camera Lucida. Sontag's analysis laid the groundwork for understanding photography not merely as documentation but as an <b>act of power</b> embedded in social, colonial, and institutional relationships."},
+  {id:23, thinker:"Visual / Linguistic / Iconic Turn", years:"", concept:"Key Turns in Cultural Theory", category:"Visual Culture",
+   teaser:"Three paradigm shifts: from language to images to the recognition that images think differently than words.",
+   full:"Three major 'turns' in cultural theory mark the shifting understanding of how humans create meaning:<br><br><b>1. Linguistic Turn</b> (Richard Rorty, 1967): Philosophy and the humanities focused on <b>language</b> as the primary medium through which meaning is constructed. Influenced by structuralism and post-structuralism.<br><br><b>2. Iconic Turn / Pictorial Turn</b> (Gottfried Boehm, 2009 / W.J.T. Mitchell, 1994): Recognition that <b>images</b> have become the dominant carriers of information and meaning in contemporary culture. This is not just about images being more common, but about the realization that images operate with their own logic \u2014 <b>there is no hierarchy, no pre-established syntax</b> in the image. The eye moves freely. Visual language is comprehensible, but we have no fixed code for it.<br><br><b>3. Visual Turn</b> (Nicholas Mirzoeff): The modern tendency to <b>visualize</b> existence, depicting things that are not necessarily visual. Focus on visuality as a <b>cultural and political practice</b> with implications for power and surveillance.<br><br>Key distinction: The linguistic turn argued that reality is constructed through language. The iconic/pictorial turn argues that images are not merely illustrations of linguistic meaning but have their own irreducible way of creating understanding. As Federico Ferrari writes: 'Seeing is not reading' \u2014 the image has no hierarchy, and meaning shifts from the domain of logos to the image itself, in its essence."},
+];
+
+// Get unique lectures
+const lectures = [...new Set(works.map(w => w.lez))].sort((a,b) => a-b);
+
+// Build filter buttons
+const filtersEl = document.getElementById('filters');
+let filterHTML = '<button class="filter-btn active" onclick="setFilter(\'all\')">All</button>';
+lectures.forEach(l => {
+    filterHTML += `<button class="filter-btn" onclick="setFilter(${l})">Lez. ${l}</button>`;
+});
+filtersEl.innerHTML = filterHTML;
+
+// Populate flashcard lecture select
+const fcLecSelect = document.getElementById('fc-lecture');
+lectures.forEach(l => {
+    fcLecSelect.innerHTML += `<option value="${l}">Lesson ${l}</option>`;
+});
+
+// Theory categories
+const theoryCategories = [...new Set(concepts.map(c => c.category))].sort();
+const tfcCatSelect = document.getElementById('tfc-category');
+theoryCategories.forEach(cat => {
+    tfcCatSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+});
+
+let currentFilter = 'all';
+let currentView = 'gallery';
+let currentModalIndex = -1;
+let filteredWorks = [...works];
+let currentTheoryFilter = 'all';
+let theorySubView = 'concepts';
+
+function switchView(view) {
+    currentView = view;
+    document.getElementById('gallery').style.display = view === 'gallery' ? 'grid' : 'none';
+    document.getElementById('flashcard-view').style.display = view === 'flashcard' ? 'block' : 'none';
+    document.getElementById('checklist-view').style.display = view === 'checklist' ? 'block' : 'none';
+    document.getElementById('theory-view').style.display = view === 'theory' ? 'block' : 'none';
+    document.getElementById('filters').style.display = view === 'gallery' ? 'flex' : 'none';
+    document.getElementById('shortcut-hint').style.display = (view === 'flashcard' || (view === 'theory' && theorySubView === 'theory-fc')) ? 'block' : 'none';
+
+    document.querySelectorAll('.nav-tabs button').forEach((btn, i) => {
+        const views = ['gallery','flashcard','checklist','theory'];
+        btn.classList.toggle('active', views[i] === view);
+        btn.classList.toggle('theory-tab-active', views[i] === view && view === 'theory');
+    });
+
+    if (view === 'checklist') renderChecklist();
+    if (view === 'theory') {
+        renderTheoryFilters();
+        renderConceptGrid();
+    }
+}
+
+function setFilter(lez) {
+    currentFilter = lez;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === (lez === 'all' ? 'All' : `Lez. ${lez}`));
+    });
+    filterGallery();
+}
+
+function filterGallery() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    filteredWorks = works.filter(w => {
+        const matchFilter = currentFilter === 'all' || w.lez === currentFilter;
+        const matchSearch = !q ||
+            w.author.toLowerCase().includes(q) ||
+            w.title.toLowerCase().includes(q) ||
+            w.date.toLowerCase().includes(q) ||
+            w.technique.toLowerCase().includes(q) ||
+            w.museum.toLowerCase().includes(q) ||
+            w.notes.toLowerCase().includes(q);
+        return matchFilter && matchSearch;
+    });
+    renderGallery();
+}
+
+function renderGallery() {
+    const el = document.getElementById('gallery');
+    el.innerHTML = filteredWorks.map((w, i) => `
+        <div class="card" onclick="openModal(${works.indexOf(w)})">
+            ${w.img ? `<img class="card-img" src="${w.img}" alt="${w.title}" loading="lazy" onerror="this.outerHTML='<div class=\\'card-img-placeholder\\'>${w.title}</div>'">` : `<div class="card-img-placeholder">${w.title}</div>`}
+            <div class="card-body">
+                <div class="card-num">#${w.n}</div>
+                <div class="card-title">${w.title}</div>
+                <div class="card-author">${w.author} ${w.life ? `(${w.life})` : ''}</div>
+                <div class="card-meta">${w.date} &bull; ${w.technique.substring(0, 60)}${w.technique.length > 60 ? '...' : ''}</div>
+                <span class="card-lecture">Lez. ${w.lez}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Modal
+let modalType = 'work'; // 'work' or 'concept'
+function openModal(idx) {
+    modalType = 'work';
+    currentModalIndex = idx;
+    const w = works[idx];
+    document.getElementById('modal-content').innerHTML = `
+        ${w.img ? `<img class="modal-img" src="${w.img}" alt="${w.title}" onerror="this.outerHTML='<div class=\\'modal-img-placeholder\\'>${w.title}</div>'">` : `<div class="modal-img-placeholder">${w.title}</div>`}
+        <div class="modal-body">
+            <div class="card-num">#${w.n} &bull; Lesson ${w.lez}</div>
+            <h2>${w.title}</h2>
+            <div class="author">${w.author} ${w.life ? `(${w.life})` : ''}</div>
+            <div class="modal-detail"><strong>Date:</strong> ${w.date}</div>
+            <div class="modal-detail"><strong>Technique:</strong> ${w.technique}</div>
+            ${w.dimensions ? `<div class="modal-detail"><strong>Dimensions:</strong> ${w.dimensions}</div>` : ''}
+            ${w.location || w.museum ? `<div class="modal-detail"><strong>Location:</strong> ${[w.location, w.museum].filter(Boolean).join(', ')}</div>` : ''}
+            ${w.inv ? `<div class="modal-detail"><strong>Inventory:</strong> ${w.inv}</div>` : ''}
+            <div class="modal-detail"><strong>Notes:</strong> ${w.notes}</div>
+        </div>
+    `;
+    document.getElementById('modal-nav').style.display = 'flex';
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function openConceptModal(id) {
+    modalType = 'concept';
+    const c = concepts.find(cc => cc.id === id);
+    if (!c) return;
+    document.getElementById('modal-content').innerHTML = `
+        <div class="modal-body theory-modal-body" style="padding-top:32px">
+            <span class="category-tag" style="margin-bottom:12px">${c.category}</span>
+            <h2>${c.concept}</h2>
+            <div class="author">${c.thinker} ${c.years ? `(${c.years})` : ''}</div>
+            <div class="modal-detail" style="margin-top:16px;line-height:1.8">${c.full}</div>
+        </div>
+    `;
+    document.getElementById('modal-nav').style.display = 'none';
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function navigateModal(dir) {
+    if (modalType !== 'work') return;
+    let newIdx = currentModalIndex + dir;
+    if (newIdx < 0) newIdx = works.length - 1;
+    if (newIdx >= works.length) newIdx = 0;
+    openModal(newIdx);
+}
+
+// Flashcards
+let fcDeck = [];
+let fcIndex = 0;
+let fcFlipped = false;
+let fcScore = { knew: 0, didnt: 0 };
+
+function startFlashcards() {
+    const lez = document.getElementById('fc-lecture').value;
+    const type = document.getElementById('fc-type').value;
+    const count = parseInt(document.getElementById('fc-count').value);
+    const shuffle = document.getElementById('fc-shuffle').checked;
+
+    let pool = lez === 'all' ? [...works] : works.filter(w => w.lez === parseInt(lez));
+    if (shuffle) pool.sort(() => Math.random() - 0.5);
+    fcDeck = pool.slice(0, Math.min(count, pool.length));
+    fcIndex = 0;
+    fcFlipped = false;
+    fcScore = { knew: 0, didnt: 0 };
+
+    fcDeck.quizType = type;
+
+    document.getElementById('fc-settings').style.display = 'none';
+    document.getElementById('fc-session').style.display = 'block';
+    document.getElementById('fc-score').style.display = 'none';
+
+    renderFlashcard();
+}
+
+function renderFlashcard() {
+    if (fcIndex >= fcDeck.length) {
+        showScore();
+        return;
+    }
+
+    const w = fcDeck[fcIndex];
+    const type = fcDeck.quizType === 'random' ?
+        ['image-to-info','title-to-author','author-to-works'][Math.floor(Math.random()*3)] : fcDeck.quizType;
+
+    fcFlipped = false;
+    const card = document.getElementById('flashcard');
+
+    document.getElementById('fc-progress-text').textContent = `${fcIndex + 1} / ${fcDeck.length}`;
+    document.getElementById('fc-progress-fill').style.width = `${((fcIndex) / fcDeck.length) * 100}%`;
+
+    let frontHTML = '';
+    let backHTML = '';
+
+    if (type === 'image-to-info') {
+        frontHTML = `
+            ${w.img ? `<img class="fc-img" src="${w.img}" alt="?" onerror="this.outerHTML='<div class=\\'fc-img-placeholder\\'>Image not available</div>'">` : `<div class="fc-img-placeholder">${w.title}</div>`}
+            <div class="fc-question">Who made this? When? What technique?</div>
+            <div class="fc-hint">Lesson ${w.lez} &bull; #${w.n}</div>
+        `;
+        backHTML = `
+            <div class="fc-answer">
+                <h3>${w.title}</h3>
+                <p><span class="label">Author:</span> ${w.author} ${w.life ? `(${w.life})` : ''}</p>
+                <p><span class="label">Date:</span> ${w.date}</p>
+                <p><span class="label">Technique:</span> ${w.technique}</p>
+                ${w.dimensions ? `<p><span class="label">Dimensions:</span> ${w.dimensions}</p>` : ''}
+                ${w.museum ? `<p><span class="label">Museum:</span> ${w.museum}${w.location ? ', ' + w.location : ''}</p>` : ''}
+                <p><span class="label">Notes:</span> ${w.notes}</p>
+            </div>
+        `;
+    } else if (type === 'title-to-author') {
+        frontHTML = `
+            <div class="fc-question" style="font-size:1.4rem;margin-bottom:16px">"${w.title}"</div>
+            <div class="fc-hint">Who is the author? When was it made?<br>Lesson ${w.lez} &bull; #${w.n}</div>
+        `;
+        backHTML = `
+            <div class="fc-answer">
+                ${w.img ? `<img class="fc-img" src="${w.img}" alt="${w.title}" onerror="this.style.display='none'" style="margin:0 auto 16px;display:block">` : ''}
+                <h3>${w.author} ${w.life ? `(${w.life})` : ''}</h3>
+                <p><span class="label">Date:</span> ${w.date}</p>
+                <p><span class="label">Technique:</span> ${w.technique}</p>
+                <p><span class="label">Notes:</span> ${w.notes}</p>
+            </div>
+        `;
+    } else {
+        const authorWorks = works.filter(ww => ww.author === w.author);
+        frontHTML = `
+            <div class="fc-question" style="font-size:1.4rem;margin-bottom:16px">${w.author}</div>
+            <div class="fc-hint">Name the works by this author in the course<br>${w.life ? `(${w.life})` : ''}</div>
+        `;
+        backHTML = `
+            <div class="fc-answer">
+                <h3>${w.author}</h3>
+                ${authorWorks.map(aw => `<p>#${aw.n} <strong>${aw.title}</strong>, ${aw.date} - ${aw.technique.substring(0,50)}...</p>`).join('')}
+            </div>
+        `;
+    }
+
+    card.innerHTML = `
+        <div class="fc-front">${frontHTML}<div class="fc-tap">Click or press Space to reveal answer</div></div>
+        <div class="fc-answer-wrap" style="display:none">${backHTML}</div>
+    `;
+}
+
+function flipCard() {
+    if (fcIndex >= fcDeck.length) return;
+    fcFlipped = !fcFlipped;
+    const card = document.getElementById('flashcard');
+    const front = card.querySelector('.fc-front');
+    const back = card.querySelector('.fc-answer-wrap');
+
+    if (fcFlipped) {
+        front.style.display = 'none';
+        back.style.display = 'block';
+        back.querySelector('.fc-answer').style.display = 'block';
+    } else {
+        front.style.display = 'block';
+        back.style.display = 'none';
+    }
+}
+
+function markCard(knew) {
+    if (!fcFlipped) flipCard();
+    setTimeout(() => {
+        if (knew) fcScore.knew++; else fcScore.didnt++;
+        fcIndex++;
+        renderFlashcard();
+    }, 200);
+}
+
+function showScore() {
+    const total = fcScore.knew + fcScore.didnt;
+    const pct = total > 0 ? Math.round((fcScore.knew / total) * 100) : 0;
+
+    document.getElementById('fc-session').style.display = 'none';
+    const scoreEl = document.getElementById('fc-score');
+    scoreEl.style.display = 'block';
+    scoreEl.innerHTML = `
+        <h2>Session Complete!</h2>
+        <div class="big-num">${pct}%</div>
+        <p>${fcScore.knew} correct out of ${total}</p>
+        <p style="margin-top:16px; color: var(--success)">\u2713 Knew: ${fcScore.knew}</p>
+        <p style="color: var(--danger)">\u2717 Didn't know: ${fcScore.didnt}</p>
+        <div style="margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+            <button class="fc-btn" onclick="startFlashcards()">Retry Same Set</button>
+            <button class="fc-btn" onclick="resetFlashcards()">New Session</button>
+            ${fcScore.didnt > 0 ? `<button class="fc-btn didnt" onclick="retryMissed()">Retry Missed (${fcScore.didnt})</button>` : ''}
+        </div>
+    `;
+}
+
+function resetFlashcards() {
+    document.getElementById('fc-settings').style.display = 'block';
+    document.getElementById('fc-session').style.display = 'none';
+    document.getElementById('fc-score').style.display = 'none';
+}
+
+function retryMissed() {
+    startFlashcards();
+}
+
+// Checklist
+function renderChecklist() {
+    const saved = JSON.parse(localStorage.getItem('foto-checklist') || '{}');
+    const el = document.getElementById('checklist-view');
+
+    const checked = Object.values(saved).filter(Boolean).length;
+
+    let html = `
+        <div class="checklist-stats">
+            <span>Progress: <strong>${checked}</strong> / ${works.length} studied</span>
+            <span>(<strong>${Math.round((checked/works.length)*100)}%</strong>)</span>
+            <button class="fc-btn" onclick="clearChecklist()" style="margin-left:auto;padding:5px 12px;font-size:0.8rem">Reset All</button>
+        </div>
+    `;
+
+    lectures.forEach(lez => {
+        const lezWorks = works.filter(w => w.lez === lez);
+        html += `<div class="checklist-lecture"><h3>Lesson ${lez}</h3>`;
+        lezWorks.forEach(w => {
+            const isChecked = saved[w.n] || false;
+            html += `
+                <div class="checklist-item ${isChecked ? 'checked' : ''}">
+                    <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleCheck(${w.n}, this)">
+                    <div class="cl-text"><strong>#${w.n} ${w.author}</strong> - ${w.title}, ${w.date}</div>
+                </div>
+            `;
+        });
+        html += '</div>';
+    });
+
+    el.innerHTML = html;
+}
+
+function toggleCheck(n, el) {
+    const saved = JSON.parse(localStorage.getItem('foto-checklist') || '{}');
+    saved[n] = el.checked;
+    localStorage.setItem('foto-checklist', JSON.stringify(saved));
+    el.closest('.checklist-item').classList.toggle('checked', el.checked);
+    const checked = Object.values(saved).filter(Boolean).length;
+    document.querySelector('.checklist-stats span:first-child strong').textContent = checked;
+    document.querySelector('.checklist-stats span:nth-child(2) strong').textContent = Math.round((checked/works.length)*100) + '%';
+}
+
+function clearChecklist() {
+    localStorage.removeItem('foto-checklist');
+    renderChecklist();
+}
+
+// ===== THEORY SECTION =====
+
+function switchTheoryTab(tab) {
+    theorySubView = tab;
+    document.getElementById('theory-concepts-panel').style.display = tab === 'concepts' ? 'block' : 'none';
+    document.getElementById('theory-fc-panel').style.display = tab === 'theory-fc' ? 'block' : 'none';
+    document.querySelectorAll('.theory-sub-tabs button').forEach((btn, i) => {
+        btn.classList.toggle('active', ['concepts','theory-fc'][i] === tab);
+    });
+    document.getElementById('shortcut-hint').style.display = tab === 'theory-fc' ? 'block' : 'none';
+}
+
+function renderTheoryFilters() {
+    const el = document.getElementById('theory-filters');
+    let html = '<button class="filter-btn theory-filter active" onclick="setTheoryFilter(\'all\')">All</button>';
+    theoryCategories.forEach(cat => {
+        html += `<button class="filter-btn theory-filter" onclick="setTheoryFilter('${cat}')">${cat}</button>`;
+    });
+    el.innerHTML = html;
+}
+
+function setTheoryFilter(cat) {
+    currentTheoryFilter = cat;
+    document.querySelectorAll('#theory-filters .filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === (cat === 'all' ? 'All' : cat));
+    });
+    renderConceptGrid();
+}
+
+function filterConcepts() {
+    renderConceptGrid();
+}
+
+function renderConceptGrid() {
+    const q = (document.getElementById('theorySearchInput')?.value || '').toLowerCase();
+    const filtered = concepts.filter(c => {
+        const matchCat = currentTheoryFilter === 'all' || c.category === currentTheoryFilter;
+        const matchSearch = !q ||
+            c.thinker.toLowerCase().includes(q) ||
+            c.concept.toLowerCase().includes(q) ||
+            c.category.toLowerCase().includes(q) ||
+            c.teaser.toLowerCase().includes(q) ||
+            c.full.toLowerCase().includes(q);
+        return matchCat && matchSearch;
+    });
+
+    const el = document.getElementById('concept-grid');
+    el.innerHTML = filtered.map(c => `
+        <div class="concept-card" onclick="openConceptModal(${c.id})">
+            <div class="thinker">${c.thinker}</div>
+            ${c.years ? `<div class="thinker-years">${c.years}</div>` : ''}
+            <div class="concept-name">${c.concept}</div>
+            <span class="category-tag">${c.category}</span>
+            <div class="teaser">${c.teaser}</div>
+        </div>
+    `).join('');
+}
+
+// Theory Flashcards
+let tfcDeck = [];
+let tfcIndex = 0;
+let tfcFlipped = false;
+let tfcScore = { knew: 0, didnt: 0 };
+
+function startTheoryFlashcards() {
+    const cat = document.getElementById('tfc-category').value;
+    const count = parseInt(document.getElementById('tfc-count').value);
+    const shuffle = document.getElementById('tfc-shuffle').checked;
+
+    let pool = cat === 'all' ? [...concepts] : concepts.filter(c => c.category === cat);
+    if (shuffle) pool.sort(() => Math.random() - 0.5);
+    tfcDeck = pool.slice(0, Math.min(count, pool.length));
+    tfcIndex = 0;
+    tfcFlipped = false;
+    tfcScore = { knew: 0, didnt: 0 };
+
+    document.getElementById('tfc-settings').style.display = 'none';
+    document.getElementById('tfc-session').style.display = 'block';
+    document.getElementById('tfc-score').style.display = 'none';
+
+    renderTheoryFlashcard();
+}
+
+function renderTheoryFlashcard() {
+    if (tfcIndex >= tfcDeck.length) {
+        showTheoryScore();
+        return;
+    }
+
+    const c = tfcDeck[tfcIndex];
+    tfcFlipped = false;
+    const card = document.getElementById('theory-flashcard');
+
+    document.getElementById('tfc-progress-text').textContent = `${tfcIndex + 1} / ${tfcDeck.length}`;
+    document.getElementById('tfc-progress-fill').style.width = `${((tfcIndex) / tfcDeck.length) * 100}%`;
+
+    card.innerHTML = `
+        <div class="fc-front">
+            <span class="category-tag" style="margin-bottom:16px">${c.category}</span>
+            <div class="fc-question" style="font-size:1.4rem;margin-bottom:12px;color:var(--theory-accent)">${c.thinker}</div>
+            <div class="fc-question" style="font-size:1.1rem">${c.concept}</div>
+            <div class="fc-tap" style="margin-top:20px">Click or press Space to reveal answer</div>
+        </div>
+        <div class="fc-answer-wrap" style="display:none">
+            <div class="fc-answer" style="text-align:left">
+                <h3 style="color:var(--theory-accent)">${c.concept}</h3>
+                <p style="color:var(--theory-accent2);margin-bottom:12px">${c.thinker} ${c.years ? `(${c.years})` : ''}</p>
+                <div style="line-height:1.8">${c.full}</div>
+            </div>
+        </div>
+    `;
+}
+
+function flipTheoryCard() {
+    if (tfcIndex >= tfcDeck.length) return;
+    tfcFlipped = !tfcFlipped;
+    const card = document.getElementById('theory-flashcard');
+    const front = card.querySelector('.fc-front');
+    const back = card.querySelector('.fc-answer-wrap');
+
+    if (tfcFlipped) {
+        front.style.display = 'none';
+        back.style.display = 'block';
+        back.querySelector('.fc-answer').style.display = 'block';
+    } else {
+        front.style.display = 'block';
+        back.style.display = 'none';
+    }
+}
+
+function markTheoryCard(knew) {
+    if (!tfcFlipped) flipTheoryCard();
+    setTimeout(() => {
+        if (knew) tfcScore.knew++; else tfcScore.didnt++;
+        tfcIndex++;
+        renderTheoryFlashcard();
+    }, 200);
+}
+
+function showTheoryScore() {
+    const total = tfcScore.knew + tfcScore.didnt;
+    const pct = total > 0 ? Math.round((tfcScore.knew / total) * 100) : 0;
+
+    document.getElementById('tfc-session').style.display = 'none';
+    const scoreEl = document.getElementById('tfc-score');
+    scoreEl.style.display = 'block';
+    scoreEl.innerHTML = `
+        <h2 style="color:var(--theory-accent)">Session Complete!</h2>
+        <div class="big-num">${pct}%</div>
+        <p>${tfcScore.knew} correct out of ${total}</p>
+        <p style="margin-top:16px; color: var(--success)">\u2713 Knew: ${tfcScore.knew}</p>
+        <p style="color: var(--danger)">\u2717 Didn't know: ${tfcScore.didnt}</p>
+        <div style="margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+            <button class="fc-btn" onclick="startTheoryFlashcards()">Retry Same Set</button>
+            <button class="fc-btn" onclick="resetTheoryFlashcards()">New Session</button>
+        </div>
+    `;
+}
+
+function resetTheoryFlashcards() {
+    document.getElementById('tfc-settings').style.display = 'block';
+    document.getElementById('tfc-session').style.display = 'none';
+    document.getElementById('tfc-score').style.display = 'none';
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+    if (document.getElementById('modal').classList.contains('open')) {
+        if (e.key === 'ArrowLeft') navigateModal(-1);
+        if (e.key === 'ArrowRight') navigateModal(1);
+    }
+    if (currentView === 'flashcard' && document.getElementById('fc-session').style.display === 'block') {
+        if (e.key === ' ') { e.preventDefault(); flipCard(); }
+        if (e.key === 'ArrowLeft') markCard(false);
+        if (e.key === 'ArrowRight') markCard(true);
+    }
+    if (currentView === 'theory' && theorySubView === 'theory-fc' && document.getElementById('tfc-session').style.display === 'block') {
+        if (e.key === ' ') { e.preventDefault(); flipTheoryCard(); }
+        if (e.key === 'ArrowLeft') markTheoryCard(false);
+        if (e.key === 'ArrowRight') markTheoryCard(true);
+    }
+});
+
+// Initial render
+renderGallery();
+</script>
+</body>
+</html>
